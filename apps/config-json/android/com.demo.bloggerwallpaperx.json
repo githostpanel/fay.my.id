@@ -1,0 +1,74 @@
+{
+	"app": {
+		"version": 12,
+		"status": true,
+		"random_content": true,
+		"display_wallpaper_name": false,
+		"center_crop_wallpaper": true,
+		"custom_label_list": true,
+		"featured_labels": "Inspired,Breathtaking landscapes,Soft and soothing,Abstract designs and vibrant colors",
+		"privacy_policy_url": "https://karyamarketing-dev.web.app/privacy-policy.html",
+		"more_apps_url": "https://play.google.com/store/apps/dev?id=8883282219372585848",
+		"update_message": "",
+		"update_button": "",
+		"update_redirect_url": ""
+	},
+	"ads": {
+		"ad_status": 1,
+		"ad_type": "admob",
+		"backup_ads": "none",
+		"interstitial_hold_in_seconds": 0,
+		"interstitial_ad_interval": 3,
+		"native_ad_index": 5,
+		"admob_publisher_id": "ca-app-pub-3940256099942544~3347511713",
+		"admob_banner_unit_id": "ca-app-pub-3940256099942544/6300978111",
+		"admob_interstitial_unit_id": "ca-app-pub-3940256099942544/1033173712",
+		"admob_native_unit_id": "ca-app-pub-3940256099942544/2247696110",
+		"admob_app_open_ad_unit_id": "ca-app-pub-3940256099942544/9257395921",
+		"ad_manager_banner_unit_id": "/6499/example/banner",
+		"ad_manager_interstitial_unit_id": "/6499/example/interstitial",
+		"ad_manager_native_unit_id": "/6499/example/native",
+		"ad_manager_app_open_ad_unit_id": "/6499/example/app-open",
+		"fan_banner_unit_id": "IMG_16_9_APP_INSTALL#1102290040176998_1102321626840506",
+		"fan_interstitial_unit_id": "IMG_16_9_APP_INSTALL#1102290040176998_1103218190084183",
+		"fan_native_unit_id": "IMG_16_9_APP_INSTALL#1102290040176998_1142394442833224",
+		"startapp_app_id": "0",
+		"unity_game_id": "4089993",
+		"unity_banner_placement_id": "banner",
+		"unity_interstitial_placement_id": "video",
+		"applovin_banner_ad_unit_id": "0",
+		"applovin_interstitial_ad_unit_id": "0",
+		"applovin_native_ad_manual_unit_id": "0",
+		"applovin_banner_zone_id": "0",
+		"applovin_interstitial_zone_id": "0",
+		"ironsource_app_key": "85460dcd",
+		"ironsource_banner_id": "DefaultBanner",
+		"ironsource_interstitial_id": "DefaultInterstitial"
+	},
+	"notification": {
+		"fcm_notification_topic": "blogger_wallpaperx_topic",
+		"onesignal_app_id": "8e3db6c1-a33b-4bf8-9311-389d2e7e892b"
+	},
+	"blog": {
+		"blogger_id": "4604191875874031623",
+		"api_key": "AIzaSyD7jy4ZPSrRLbRfrVoJsQbY-5fMa4rDCyU"
+	},
+	"labels": [
+		{
+			"term": "Inspired",
+			"image": "https://i.pinimg.com/originals/67/f8/cd/67f8cd0779be2199be4e61d0bf792942.jpg"
+		},
+		{
+			"term": "Breathtaking landscapes",
+			"image": "https://i.pinimg.com/originals/23/2b/a1/232ba1e0ddbba497d6c116ec7030e959.jpg"
+		},
+		{
+			"term": "Soft and soothing",
+			"image": "https://i.pinimg.com/originals/fc/b0/58/fcb058fe709d5058902dfa86d1a3c7bd.jpg"
+		},
+		{
+			"term": "Abstract designs and vibrant colors",
+			"image": "https://i.pinimg.com/originals/09/1d/77/091d77ac8410ea21b4d98fd4c8fa5ef4.jpg"
+		}
+	]
+}
