@@ -1,0 +1,6 @@
+*.bat
+*.cmd
+Makefile
+document.txt
+doc
+*.ini
