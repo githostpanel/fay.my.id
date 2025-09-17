@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kursus Bahasa Inggris Online & Offline</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #99c2ff 0%, #ff66ff 100%);
+      background-attachment: fixed;
+      color: #1A467F;
+      scroll-behavior: smooth;
+    }
+    .header-bg {
+      background-color: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+    }
+    #burger.is-active .burger-line:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+    #burger.is-active .burger-line:nth-child(2) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    /* Scroll margin untuk anchor */
+    #why-private, #fasilitas, #tahap-belajar, #testimoni, #daftar {
+      scroll-margin-top: 140px; /* header + promo */
+    }
+  </style>
+</head>
+<body class="p-4">
+
+
+    <!-- Header + Promo Bar -->
+<div class="fixed top-0 left-0 right-0 z-50">
+
+  <!-- Promo Bar -->
+  <div id="promo-bar" class="bg-red-600 text-yellow-300 text-center px-3 py-2 font-bold text-sm md:text-base">
+    🎉 Dapatkan Diskon 50% untuk pendaftaran bulan ini! 🎉
+  </div>
+
+  <!-- Header -->
+  <header class="header transition-transform duration-300 bg-white shadow-md">
+
+    <nav class="navbar max-w-6xl mx-auto py-3 px-4 sm:px-6 rounded-full grid grid-cols-3 items-center md:flex md:justify-between">
+      
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <img src="https://i0.wp.com/englishcall.id/wp-content/uploads/2022/02/english-call.png" alt="Logo" class="h-10">
+        <span class="hidden md:inline font-bold text-gray-700 text-lg">English Call</span>
+      </div>
+
+      <!-- Text logo mobile -->
+      <div class="flex justify-center md:hidden">
+        <span class="font-bold text-gray-700 text-lg">English Call</span>
+      </div>
+
+      <!-- Menu kanan -->
+      <div class="flex justify-end items-center space-x-4">
+        <!-- Menu Desktop -->
+        <div class="hidden md:flex items-center space-x-6">
+          <ul class="flex space-x-6 text-gray-700 font-semibold">
+            <li><a href="#why-private" class="hover:underline hover:text-purple-600">Kenapa Privat?</a></li>
+            <li><a href="#fasilitas" class="hover:underline hover:text-purple-600">Fasilitas</a></li>
+            <li><a href="#tahap-belajar" class="hover:underline hover:text-purple-600">Tahap Belajar</a></li>
+            <li><a href="#testimoni" class="hover:underline hover:text-purple-600">Testimoni</a></li>
+          </ul>
+          <a href="#daftar" class="bg-red-500 text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-red-600 transition-colors">
+            Daftar Sekarang
+          </a>
+        </div>
+
+        <!-- Burger Mobile -->
+        <div class="md:hidden">
+          <button type="button" id="burger" class="burger-toggle focus:outline-none">
+            <span class="block w-6 h-1 bg-gray-700 rounded-full my-1 transition-all duration-300 burger-line"></span>
+            <span class="block w-6 h-1 bg-gray-700 rounded-full my-1 transition-all duration-300 burger-line"></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="fixed inset-0 top-0 right-0 w-full h-full bg-white bg-opacity-90 backdrop-blur-md z-40 transform translate-x-full transition-transform duration-300 md:hidden">
+  <div class="flex flex-col items-center pt-24 space-y-8">
+    <ul class="flex flex-col items-center space-y-8 text-xl font-bold">
+      <li><a href="#why-private" class="text-gray-700 hover:text-purple-600" onclick="closeMobileMenu()">Kenapa Privat?</a></li>
+      <li><a href="#fasilitas" class="text-gray-700 hover:text-purple-600" onclick="closeMobileMenu()">Fasilitas</a></li>
+      <li><a href="#tahap-belajar" class="text-gray-700 hover:text-purple-600" onclick="closeMobileMenu()">Tahap Belajar</a></li>
+      <li><a href="#testimoni" class="text-gray-700 hover:text-purple-600" onclick="closeMobileMenu()">Testimoni</a></li>
+    </ul>
+    <a href="#daftar" onclick="closeMobileMenu()" class="bg-red-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-red-600 transition-colors mt-8">Daftar Sekarang</a>
+  </div>
+</div>
+
+<!-- Main Content -->
+<main class="max-w-6xl mx-auto mt-0 px-4 sm:px-6">
+  <!-- Hero -->
+  <section class="text-center py-16">
+    <h1 class="text-3xl sm:text-5xl font-extrabold mb-6">Belajar Bahasa Inggris Jadi Lebih Mudah</h1>
+    <p class="text-lg text-gray-700 mb-6">Privat, fleksibel, online & offline dengan tutor berpengalaman</p>
+
+    <!-- Video Promosi -->
+    <div class="mb-8 max-w-xl mx-auto">
+      <div class="rounded-3xl border-4 border-red-600 shadow-2xl overflow-hidden bg-white">
+        <div id="video-thumbnail" class="relative cursor-pointer group overflow-hidden">
+          <img src="https://img.youtube.com/vi/ag8n64qaTxs/maxresdefault.jpg" 
+               alt="Video Thumbnail" 
+               class="w-full h-auto object-cover transform group-hover:scale-105 transition duration-500 brightness-105">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="bg-red-600 text-white p-6 rounded-full shadow-lg group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div id="video-player" class="video-container hidden">
+          <div class="relative w-full" style="padding-top: 56.25%;">
+            <iframe id="video-iframe"
+                    class="absolute top-0 left-0 w-full h-full"
+                    src=""
+                    frameborder="0"
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a href="#daftar" class="bg-red-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-red-600 transition-colors">
+      Daftar Sekarang
+    </a>
+  </section>
+
+  <!-- Kenapa Privat -->
+  <section id="why-private" class="my-20 text-center">
+    <h2 class="text-2xl sm:text-3xl font-bold mb-6">KENAPA HARUS PRIVAT?</h2>
+    <p class="text-gray-700 max-w-2xl mx-auto">Belajar privat membuat kamu lebih fokus, materi disesuaikan dengan kebutuhanmu, dan progres belajar lebih cepat.</p>
+  </section>
+
+  <!-- Fasilitas -->
+  <section id="fasilitas" class="my-20">
+    <h2 class="text-2xl sm:text-3xl font-bold text-center mb-12">FASILITAS</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="bg-white/70 rounded-2xl shadow-md p-6 text-center">
+        <i class='bx bxs-videos text-5xl text-purple-600 mb-4'></i>
+        <h3 class="font-semibold text-lg mb-2">Kelas Online</h3>
+        <p>Kelas fleksibel via Zoom/Google Meet dengan tutor profesional.</p>
+      </div>
+      <div class="bg-white/70 rounded-2xl shadow-md p-6 text-center">
+        <i class='bx bx-book-open text-5xl text-purple-600 mb-4'></i>
+        <h3 class="font-semibold text-lg mb-2">Materi Lengkap</h3>
+        <p>Dapatkan modul eksklusif yang mudah dipahami.</p>
+      </div>
+      <div class="bg-white/70 rounded-2xl shadow-md p-6 text-center">
+        <i class='bx bxs-graduation text-5xl text-purple-600 mb-4'></i>
+        <h3 class="font-semibold text-lg mb-2">Sertifikat</h3>
+        <p>Sertifikat resmi setelah menyelesaikan program belajar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tahap Belajar -->
+  <section id="tahap-belajar" class="my-20">
+    <h2 class="text-2xl sm:text-3xl font-bold text-center mb-12">TAHAP BELAJAR</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="p-6 bg-white/70 rounded-2xl shadow-md text-center">
+        <h3 class="font-bold text-xl mb-2">1. Beginner</h3>
+        <p>Mulai dari dasar untuk membangun kepercayaan diri.</p>
+      </div>
+      <div class="p-6 bg-white/70 rounded-2xl shadow-md text-center">
+        <h3 class="font-bold text-xl mb-2">2. Intermediate</h3>
+        <p>Meningkatkan kosakata dan tata bahasa untuk percakapan sehari-hari.</p>
+      </div>
+      <div class="p-6 bg-white/70 rounded-2xl shadow-md text-center">
+        <h3 class="font-bold text-xl mb-2">3. Advanced</h3>
+        <p>Fokus pada keahlian profesional, presentasi, dan akademik.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimoni -->
+  <section id="testimoni" class="my-20 text-center">
+    <h2 class="text-2xl sm:text-3xl font-bold mb-12">TESTIMONI</h2>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="bg-white/70 rounded-2xl shadow-md p-6">
+        <p class="italic">"Belajar di English Call sangat membantu saya lebih percaya diri berbicara bahasa Inggris!"</p>
+        <p class="mt-4 font-semibold">– Andi, Mahasiswa</p>
+      </div>
+      <div class="bg-white/70 rounded-2xl shadow-md p-6">
+        <p class="italic">"Materinya jelas, tutor ramah, dan bisa menyesuaikan dengan kebutuhan saya."</p>
+        <p class="mt-4 font-semibold">– Sinta, Karyawan</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Daftar -->
+  <section id="daftar" class="text-center py-16">
+    <h2 class="text-2xl sm:text-3xl font-bold mb-6">Siap Belajar Bahasa Inggris?</h2>
+    <a href="#" class="bg-red-500 text-white font-bold py-3 px-10 rounded-full shadow-lg hover:bg-red-600 transition-colors">
+      Daftar Sekarang
+    </a>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-white/50 py-6 mt-16 text-center text-sm text-gray-700">
+  <p>&copy; 2025 English Call. All rights reserved.</p>
+</footer>
+
+<script>
+  // Burger Mobile Menu
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  function toggleMobileMenu() {
+    burger.classList.toggle('is-active');
+    mobileMenu.classList.toggle('translate-x-full');
+    document.body.style.overflow = mobileMenu.classList.contains('translate-x-full') ? 'initial' : 'hidden';
+  }
+  function closeMobileMenu() {
+    burger.classList.remove('is-active');
+    mobileMenu.classList.add('translate-x-full');
+    document.body.style.overflow = 'initial';
+  }
+  burger.addEventListener('click', toggleMobileMenu);
+
+  // Smooth Scroll
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener("click", function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute("href"));
+      if(target){
+        const headerOffset = document.querySelector('.header').offsetHeight + (document.getElementById('promo-bar') ? document.getElementById('promo-bar').offsetHeight : 0);
+        window.scrollTo({ top: target.offsetTop - headerOffset, behavior: 'smooth' });
+        closeMobileMenu();
+      }
+    });
+  });
+
+  // Video Promosi
+  const videoThumb = document.getElementById("video-thumbnail");
+  const videoWrap = document.getElementById("video-player");
+  const videoFrame = document.getElementById("video-iframe");
+  videoThumb.addEventListener("click", () => {
+    videoFrame.src = "https://www.youtube-nocookie.com/embed/ag8n64qaTxs?autoplay=1&rel=0&modestbranding=1&controls=1";
+    videoThumb.classList.add("hidden");
+    videoWrap.classList.remove("hidden");
+  });
+
+  // Promo bar ON/OFF
+  const showPromo = false; // false untuk hide
+  if(!showPromo){
+    document.getElementById('promo-bar').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>

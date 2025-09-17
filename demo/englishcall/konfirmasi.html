@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Konfirmasi Pembayaran</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-poppins">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md fixed w-full top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center py-4 px-6">
+      <div class="flex items-center space-x-2">
+        <img src="https://i0.wp.com/englishcall.id/wp-content/uploads/2022/02/english-call.png" alt="Logo" class="h-10">
+        <span class="font-bold text-lg hidden md:inline">English Call</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-28 max-w-3xl mx-auto px-4 sm:px-6">
+
+    <section class="bg-white rounded-xl shadow-lg p-6 mb-16">
+      <h1 class="text-2xl font-bold mb-6 text-center">Form Konfirmasi Pembayaran</h1>
+
+      <form id="formKonfirmasi" class="space-y-4" enctype="multipart/form-data">
+
+        <!-- Nomor Invoice -->
+        <div>
+          <label class="block font-semibold mb-1">Nomor Invoice / ID Transaksi</label>
+          <input type="text" name="invoice" required class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Contoh: INV-20250917-001">
+        </div>
+
+        <!-- Nama Pemilik Rekening -->
+        <div>
+          <label class="block font-semibold mb-1">Nama Pemilik Rekening</label>
+          <input type="text" name="nama" required class="w-full border border-gray-300 rounded-md px-3 py-2">
+        </div>
+
+        <!-- Tanggal Transfer -->
+        <div>
+          <label class="block font-semibold mb-1">Tanggal Transfer</label>
+          <input type="date" name="tanggal" required class="w-full border border-gray-300 rounded-md px-3 py-2">
+        </div>
+
+        <!-- Jumlah Transfer -->
+        <div>
+          <label class="block font-semibold mb-1">Jumlah Transfer (Rp)</label>
+          <input type="number" name="jumlah" required class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Contoh: 250000">
+        </div>
+
+        <!-- Bank Tujuan -->
+        <div>
+          <label class="block font-semibold mb-1">Bank Tujuan</label>
+          <select name="bank" required class="w-full border border-gray-300 rounded-md px-3 py-2">
+            <option value="">Pilih Bank</option>
+            <option value="BCA">BCA</option>
+            <option value="BNI">BNI</option>
+            <option value="BRI">BRI</option>
+          </select>
+        </div>
+
+        <!-- Upload Bukti Transfer / Invoice -->
+        <div>
+          <label class="block font-semibold mb-1">Upload Bukti Transfer / Invoice</label>
+          <input type="file" name="bukti" accept="image/*,application/pdf" required class="w-full border border-gray-300 rounded-md px-3 py-2">
+          <p class="text-gray-500 text-sm mt-1">Format JPG, PNG, atau PDF. Maksimal 5MB.</p>
+        </div>
+
+        <!-- Catatan -->
+        <div>
+          <label class="block font-semibold mb-1">Catatan / Pesan (Opsional)</label>
+          <textarea name="catatan" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Misal: Transfer untuk program Private Pre-School"></textarea>
+        </div>
+
+        <!-- Submit -->
+        <div>
+          <button type="submit" class="w-full bg-green-500 text-white font-bold py-3 rounded-full hover:bg-green-600 transition-colors">
+            Kirim Konfirmasi Pembayaran
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+  <footer class="bg-white/50 py-6 mt-16 text-center text-sm text-gray-700">
+    &copy; 2025 English Call. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById('formKonfirmasi').addEventListener('submit', function(e){
+      e.preventDefault();
+      const form = e.target;
+      const invoice = form.invoice.value;
+      const nama = form.nama.value;
+      const tanggal = form.tanggal.value;
+      const jumlah = form.jumlah.value;
+      const bank = form.bank.value;
+      const catatan = form.catatan.value;
+      const fileInput = form.bukti;
+      const fileName = fileInput.files.length ? fileInput.files[0].name : 'Tidak ada file';
+
+      const text = `Konfirmasi Pembayaran\nInvoice: ${invoice}\nNama: ${nama}\nTanggal: ${tanggal}\nJumlah: Rp${jumlah}\nBank: ${bank}\nBukti: ${fileName}\nCatatan: ${catatan}`;
+      
+      alert(text); // Bisa diganti ke WA atau backend
+      // Contoh jika ingin kirim WA (tanpa file):
+      // const waLink = `https://wa.me/628xxxxxx?text=${encodeURIComponent(text)}`;
+      // window.open(waLink,'_blank');
+
+            // const waLink = `https://wa.me/6285710002811?text=${encodeURIComponent(text)}`;
+                const waLink = `https://web.whatsapp.com/send/?phone=6285710002811?text=${encodeURIComponent(text)}`;
+      window.open(waLink,'_blank');
+    });
+  </script>
+
+</body>
+</html>

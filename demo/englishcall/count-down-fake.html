@@ -1,0 +1,65 @@
+<div id="countdownCTA" style="font-size:24px;font-weight:bold;text-align:center;"></div>
+
+<script>
+const countdownConfig = {
+  mode: '1', // '1 durasi' | '2 jam' | '0' nonaktif
+  durasiJam: 1, // durasi countdown
+  jamAkhirDurasi: '04:12', // jam berakhir countdown
+  ulangHarian: true
+};
+
+const countdownEl = document.getElementById('countdownCTA');
+
+function startCountdown() {
+
+  function getTargetTimes() {
+    const now = new Date();
+    const [jamAkhir, menitAkhir] = countdownConfig.jamAkhirDurasi.split(':').map(Number);
+
+    let targetEnd = new Date(now);
+    targetEnd.setHours(jamAkhir, menitAkhir, 0, 0);
+
+    // Target start = jam akhir - durasi
+    let targetStart = new Date(targetEnd.getTime() - countdownConfig.durasiJam * 60 * 60 * 1000);
+
+    // Jika ulangHarian dan sekarang > targetEnd → geser ke besok
+    if (countdownConfig.ulangHarian && now > targetEnd) {
+      targetStart.setDate(targetStart.getDate() + 1);
+      targetEnd.setDate(targetEnd.getDate() + 1);
+    }
+
+    return { targetStart, targetEnd };
+  }
+
+  function updateCountdown() {
+    const now = new Date();
+    const { targetStart, targetEnd } = getTargetTimes();
+
+    if (now < targetStart) {
+      // belum mulai
+      countdownEl.textContent = "Countdown belum aktif";
+    } else if (now >= targetStart && now <= targetEnd) {
+      // sedang countdown
+      const diff = targetEnd - now;
+      countdownEl.textContent = "Sisa waktu: " + formatDiff(diff);
+    } else {
+      // sudah lewat targetEnd
+      countdownEl.textContent = "Countdown berakhir";
+    }
+  }
+
+  function formatDiff(ms) {
+    let totalSeconds = Math.floor(ms / 1000);
+    const h = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
+
+startCountdown();
+</script>
