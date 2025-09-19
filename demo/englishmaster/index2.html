@@ -1,0 +1,326 @@
+
+# Template Landing Page Kursus Bahasa Inggris dengan Tailwind CSS
+
+Berikut template landing page modern untuk lembaga kursus bahasa Inggris yang dibuat dengan Tailwind CSS:
+
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnglishMaster - Kursus Bahasa Inggris Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4361ee',
+                        secondary: '#3a0ca3',
+                        accent: '#f72585',
+                        success: '#4cc9f0',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles */
+        .hero-pattern {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(58, 12, 163, 0.1) 100%);
+        }
+        
+        .testimonial-pattern {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%);
+        }
+        
+        .cta-pattern {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+        }
+        
+        .nav-scroll {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .testimonial-quote::before,
+        .testimonial-quote::after {
+            content: '"';
+            font-size: 3rem;
+            color: #4361ee;
+            opacity: 0.2;
+            position: absolute;
+        }
+        
+        .testimonial-quote::before {
+            top: -20px;
+            left: -15px;
+        }
+        
+        .testimonial-quote::after {
+            bottom: -40px;
+            right: -15px;
+        }
+        
+        /* Hamburger menu animation */
+        .hamburger-line {
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        
+        .hamburger-active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+    <!-- Header & Navigation -->
+    <header id="header" class="fixed w-full z-50 transition-all duration-300 py-5">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between">
+                <a href="#" class="text-2xl font-bold text-primary flex items-center">
+                    <i class="fas fa-language text-accent mr-2"></i> EnglishMaster
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="font-medium hover:text-primary transition-colors">Beranda</a>
+                    <a href="#programs" class="font-medium hover:text-primary transition-colors">Program</a>
+                    <a href="#features" class="font-medium hover:text-primary transition-colors">Keunggulan</a>
+                    <a href="#testimonials" class="font-medium hover:text-primary transition-colors">Testimoni</a>
+                    <a href="#contact" class="font-medium hover:text-primary transition-colors">Kontak</a>
+                    <a href="#" class="bg-primary text-white px-6 py-2 rounded-full font-semibold hover:bg-secondary transition-all">Daftar Sekarang</a>
+                </div>
+                
+                <div class="md:hidden">
+                    <button id="hamburger" class="focus:outline-none">
+                        <span class="hamburger-line block w-6 h-0.5 bg-gray-800 mb-1.5"></span>
+                        <span class="hamburger-line block w-6 h-0.5 bg-gray-800 mb-1.5"></span>
+                        <span class="hamburger-line block w-6 h-0.5 bg-gray-800"></span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg py-4 absolute top-full left-0 w-full">
+            <div class="container mx-auto px-4 flex flex-col space-y-4">
+                <a href="#" class="font-medium hover:text-primary transition-colors">Beranda</a>
+                <a href="#programs" class="font-medium hover:text-primary transition-colors">Program</a>
+                <a href="#features" class="font-medium hover:text-primary transition-colors">Keunggulan</a>
+                <a href="#testimonials" class="font-medium hover:text-primary transition-colors">Testimoni</a>
+                <a href="#contact" class="font-medium hover:text-primary transition-colors">Kontak</a>
+                <a href="#" class="bg-primary text-white px-6 py-2 rounded-full font-semibold hover:bg-secondary transition-all text-center">Daftar Sekarang</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-pattern pt-40 pb-20 md:pt-48 md:pb-28 px-4">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="md:w-1/2 mb-12 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-secondary leading-tight mb-6">
+                        Kuasai Bahasa Inggris dengan Metode <span class="text-accent">Modern</span>
+                    </h1>
+                    <p class="text-lg text-gray-600 mb-8">
+                        Tingkatkan kemampuan bahasa Inggris Anda dengan program kursus berkualitas tinggi dan pengajar profesional kami.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#programs" class="bg-primary text-white px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-all text-center">
+                            Lihat Program
+                        </a>
+                        <a href="#contact" class="bg-accent text-white px-8 py-3 rounded-full font-semibold hover:bg-pink-600 transition-all text-center">
+                            Konsultasi Gratis
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 animate-float">
+                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                         alt="English Learning" class="rounded-2xl shadow-xl w-full">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 px-4">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-secondary mb-16">
+                Mengapa Memilih <span class="text-accent">Kami</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-primary text-2xl mb-6 mx-auto">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-secondary text-center mb-4">Pengajar Profesional</h3>
+                    <p class="text-gray-600 text-center">
+                        Diajar oleh pengajar bersertifikat internasional dengan pengalaman mengajar lebih dari 5 tahun.
+                    </p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-primary text-2xl mb-6 mx-auto">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-secondary text-center mb-4">Kelas Interaktif</h3>
+                    <p class="text-gray-600 text-center">
+                        Metode pembelajaran interaktif dengan kelompok kecil untuk perhatian maksimal pada setiap siswa.
+                    </p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-primary text-2xl mb-6 mx-auto">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-secondary text-center mb-4">Kurikulum Internasional</h3>
+                    <p class="text-gray-600 text-center">
+                        Kurikulum berbasis standar internasional yang dirancang untuk kebutuhan dunia kerja dan akademik.
+                    </p>
+                </div>
+                
+                <!-- Feature 4 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-primary text-2xl mb-6 mx-auto">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-secondary text-center mb-4">Platform Digital</h3>
+                    <p class="text-gray-600 text-center">
+                        Akses materi pembelajaran melalui platform digital yang dapat diakses kapan saja dan di mana saja.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programs Section -->
+    <section id="programs" class="py-20 bg-gray-50 px-4">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-secondary mb-16">
+                Program <span class="text-accent">Kursus</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Program 1 -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                             alt="General English" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-secondary mb-3">General English</h3>
+                        <p class="text-gray-600 mb-4">
+                            Kursus bahasa Inggris umum untuk pemula hingga tingkat lanjut dengan fokus pada percakapan sehari-hari.
+                        </p>
+                        <div class="flex justify-between items-center mb-5">
+                            <span class="text-gray-500"><i class="far fa-clock mr-2"></i>3 Bulan</span>
+                            <span class="text-primary font-bold text-lg">Rp 1.500.000</span>
+                        </div>
+                        <a href="#" class="block w-full bg-primary text-white text-center py-3 rounded-lg font-semibold hover:bg-secondary transition-all">
+                            Daftar Sekarang
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Program 2 -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1561089489-f13d5e730d72?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                             alt="Business English" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-secondary mb-3">Business English</h3>
+                        <p class="text-gray-600 mb-4">
+                            Kursus bahasa Inggris untuk dunia bisnis dan profesional dengan fokus pada komunikasi bisnis.
+                        </p>
+                        <div class="flex justify-between items-center mb-5">
+                            <span class="text-gray-500"><i class="far fa-clock mr-2"></i>4 Bulan</span>
+                            <span class="text-primary font-bold text-lg">Rp 2.200.000</span>
+                        </div>
+                        <a href="#" class="block w-full bg-primary text-white text-center py-3 rounded-lg font-semibold hover:bg-secondary transition-all">
+                            Daftar Sekarang
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Program 3 -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1581093458797-5a5a7fbec7c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                             alt="TOEFL/IELTS Preparation" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-secondary mb-3">TOEFL/IELTS Preparation</h3>
+                        <p class="text-gray-600 mb-4">
+                            Persiapan khusus untuk tes TOEFL dan IELTS dengan strategi dan latihan soal terbaik.
+                        </p>
+                        <div class="flex justify-between items-center mb-5">
+                            <span class="text-gray-500"><i class="far fa-clock mr-2"></i>3 Bulan</span>
+                            <span class="text-primary font-bold text-lg">Rp 2.500.000</span>
+                        </div>
+                        <a href="#" class="block w-full bg-primary text-white text-center py-3 rounded-lg font-semibold hover:bg-secondary transition-all">
+                            Daftar Sekarang
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonial-pattern py-20 px-4">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-secondary mb-16">
+                Apa Kata <span class="text-accent">Mereka</span>
+            </h2>
+            
+            <div class="max-w-4xl mx-auto relative">
+                <!-- Testimonial Slides -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-12">
+                    <p class="testimonial-quote text-lg md:text-xl text-gray-700 italic relative text-center mb-8">
+                        Setelah mengikuti kursus di EnglishMaster, kemampuan bahasa Inggris saya meningkat signifikan. Sekarang saya lebih percaya diri berkomunikasi dengan klien asing.
+                    </p>
+                    <div class="flex items-center justify-center">
+                        <div class="w-16 h-16 rounded-full overflow-hidden mr-4">
+                            <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Rina Santoso" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-secondary">Rina Santoso</h4>
+                            <p class="text-gray-600 text-sm">Business English Program</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Testimonial Dots -->
+                <div class="flex justify-center space-x-2">
+                    <button class="w-3 h-3 rounded-full bg-primary"></button>
+                    <button class="w-3 h-3 rounded-full bg-gray-300"></button>
+                    <button class="w-3 h-3 rounded-full bg-gray-300"></button>
+                </div

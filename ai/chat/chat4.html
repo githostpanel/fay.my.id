@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #chat-container {
+            width: 400px;
+            height: 600px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        #chat-box {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding-right: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        #chat-box .message {
+            margin-bottom: 10px;
+        }
+        #chat-box .user-message {
+            text-align: right;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            padding: 10px;
+            max-width: 80%;
+            margin-left: auto;
+        }
+        #chat-box .ai-message {
+            text-align: left;
+            background-color: #ddd;
+            color: #333;
+            border-radius: 20px;
+            padding: 10px;
+            max-width: 80%;
+        }
+        #typing-indicator {
+            display: none;
+            color: #888;
+            font-style: italic;
+            font-size: 14px;
+        }
+        #input-box {
+            display: flex;
+        }
+        #input-box input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+        }
+        #input-box button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        #input-box button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-box">
+            <!-- Messages will appear here -->
+        </div>
+        <div id="typing-indicator">
+            AI sedang mengetik...
+        </div>
+        <div id="input-box">
+            <input type="text" id="user-input" placeholder="Ketik pesan...">
+            <button onclick="sendMessage()">Kirim</button>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = "https://ai.hackclub.com/chat/completions";
+
+        // Fungsi untuk menampilkan pesan
+        function appendMessage(content, role) {
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(role === 'user' ? 'user-message' : 'ai-message');
+            messageDiv.textContent = content;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;  // Scroll ke bawah saat pesan baru datang
+        }
+
+        // Fungsi untuk menampilkan animasi mengetik
+        function showTypingIndicator(show) {
+            const typingIndicator = document.getElementById('typing-indicator');
+            typingIndicator.style.display = show ? 'block' : 'none';
+        }
+
+    async function sendMessage() {
+    const userInput = document.getElementById('user-input').value;
+    if (!userInput) return;
+
+    // Menampilkan pesan pengguna
+    appendMessage(userInput, 'user');
+    document.getElementById('user-input').value = ''; // Reset input
+
+    // Menampilkan animasi mengetik
+    showTypingIndicator(true);
+
+    // Data yang akan dikirimkan ke API
+    const data = {
+        messages: [
+            { role: "user", content: userInput }
+        ]
+    };
+
+    // Opsi untuk permintaan fetch
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    };
+
+    // Mengirim permintaan ke API
+    try {
+        const response = await fetch(apiUrl, options);
+        const responseData = await response.json();
+
+        // Mendapatkan jawaban AI dari 'content' dan menghapus bagian <think>...</think>
+        let aiResponse = responseData.choices[0].message.content;
+        
+        // Menghapus tag <think> dan </think> jika ada
+        aiResponse = aiResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
+        // Menyembunyikan animasi mengetik dan menampilkan jawaban
+        showTypingIndicator(false);
+        appendMessage(aiResponse, 'ai');
+    } catch (error) {
+        console.error('Error:', error);
+        showTypingIndicator(false);
+        appendMessage("Maaf, terjadi kesalahan. Coba lagi.", 'ai');
+    }
+}
+
+
+        // Menambahkan event listener untuk Enter key
+        document.getElementById('user-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
+
