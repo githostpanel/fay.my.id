@@ -1,27 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencarian Google Custom</title>
+
 <style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #fff;
+        color: #202124;
+        margin: 0;
+        padding: 0;
+    }
 
-#search-results { background: auto;}
-  .gcse-searchresults {
-    background-color: black; 
-    color: white; 
-    text-decoration: yellow; 
-}
-#bg{ background-color:black;
-  color: white;
-  text-decoration: yellow;
-  }
+    /* Logo Google */
+    .logo {
+        text-align: center;
+        margin: 40px 0 20px;
+    }
+
+    .logo img {
+        width: 272px;
+        height: auto;
+    }
+
+    /* Bagian search box di tengah atas */
+    .search-section {
+        text-align: center;
+        margin: 0 0 30px;
+    }
+
+    .gsc-search-box {
+        display: inline-block;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .gsc-input-box {
+        border: 1px solid #dfe1e5 !important;
   
+        box-shadow: none !important;
+        padding: 5px 14px !important;
+        background: #fff !important;
+		border-radius: 24px 24px 24px 24px !important;
+    }
+
+    .gsc-input {
+        border: none !important;
+        font-size: 16px !important;
+        outline: none !important;
+    }
+
+    .gsc-search-button {
+        
+        border: 1px solid #21273300 !important;
+  
+        padding: 6px !important;
+        margin-left: 8px !important;
+        cursor: pointer;
+		border-radius: 24px;
+    }
+	
+	.gsc-search-button-v2 {
+	background: #f8f9fa !important;
+	border-radius: 50%!important;
+
+	}
+	
+	.gsc-search-button-v2 svg {
+  fill: #4285f4 !important;
+  	width: 17px !important;
+  height: 17px !important;
+}
+
+    .gsc-search-button:hover {
+        background: #f1f3f4 !important;
+    }
+
+    /* Tampilan hasil */
+    .gcse-searchresults {
+        max-width: 652px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .gsc-webResult {
+        border: none !important;
+        margin: 0 0 25px 0 !important;
+        padding: 0 !important;
+    }
+
+    .gs-title a {
+        color: #1a0dab !important;
+        font-size: 18px !important;
+        text-decoration: none !important;
+    }
+
+    .gs-title a:hover {
+        text-decoration: underline !important;
+    }
+
+    .gs-visibleUrl {
+        color: #006621 !important;
+        font-size: 14px !important;
+    }
+
+    .gs-bidi-start-align {
+        color: #4d5156 !important;
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+
+    /* Pagination */
+    .gsc-cursor-box {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        padding: 20px 0;
+    }
+    
+    .gsc-cursor-page {
+        padding: 8px 15px;
+        margin: 0 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .gsc-cursor-page.gsc-cursor-current-page {
+        background-color: #4285f4;
+        color: white;
+    }
+    
+    .gsc-cursor-page:not(.gsc-cursor-current-page) {
+        background-color: #f8f9fa;
+        color: #4285f4;
+        border: 1px solid #dee2e6;
+    }
+    
+    .gsc-cursor-page:not(.gsc-cursor-current-page):hover {
+        background-color: #e9ecef;
+    }
 </style>
-    <br />
-Selamat datang di Blog Pencarian kami! Temukan berbagai situs penyedia gambar keindahan dalam visual di dunia ini.<br /> Mari jelajahi koleksi gambar inspiratif dari berbagai situs web dan temukan kreativitas yang tak terbatas.
-<br />
+</head>
+<body>
 
-<script async src="https://cse.google.com/cse.js?cx=41b7c4c634f544b6c">
+<!-- Logo Google -->
+<div class="logo">
+    <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" 
+         alt="Google Logo">
+</div>
 
-</script>
+<!-- Search Box -->
+<div class="search-section">
+    <div class="gcse-searchbox"></div>
+</div>
 
-<center>
-        <label><b>Cari Gambar<br /></b></label>&nbsp;<div class="gcse-searchbox"></div>
-</center>
+<!-- Hasil Pencarian -->
 <div class="gcse-searchresults"></div>
-<div style='text-align: center'>
+
+<script async src="google-search.js"></script>
+<script async src="https://cse.google.com/cse.js?cx=41b7c4c634f544b6c"></script>
+</body>
+</html>
