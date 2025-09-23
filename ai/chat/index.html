@@ -734,5 +734,13 @@
         // Jalankan saat halaman dimuat
         window.onload = init;
     </script>
+	
+	<script>
+if (window.top !== window.self) {
+  // artinya website sedang di dalam iframe
+  document.body.innerHTML = "<h1>⚠️ Embedding tidak diizinkan</h1>";
+}
+</script>
+
 </body>
 </html>
