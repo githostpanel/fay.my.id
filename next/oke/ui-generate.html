@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Girl Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+      body {
+        background: linear-gradient(135deg, #6e45e2, #88d3ce);
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        color: white;
+        position: relative;
+      }
+      .stars {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://source.unsplash.com/random/1920x1080?stars') repeat center center;
+        opacity: 0.5;
+        z-index: -1;
+      }
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+      }
+      .question {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      .options {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .option {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .option:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      .option.selected {
+        background: rgba(255, 255, 255, 0.5);
+      }
+      .next-btn {
+        background: linear-gradient(135deg, #ff758c, #ff7eb3);
+        color: white;
+        padding: 1rem;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-top: 2rem;
+        transition: background 0.3s;
+      }
+      .next-btn:hover {
+        background: linear-gradient(135deg, #ff6b81, #ff6b91);
+      }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="container">
+        <div class="question">What's the overall vibe or aura she gives off ?</div>
+        <div class="options">
+            <div class="option" data-value="Confident & Classy">Confident & Classy</div>
+            <div class="option" data-value="Sporty & Rational">Sporty & Rational</div>
+            <div class="option" data-value="Mysterious & Magnetic">Mysterious & Magnetic</div>
+            <div class="option" data-value="Charming & Irresistible">Charming & Irresistible</div>
+        </div>
+        <button class="next-btn" disabled>Next Question →</button>
+    </div>
+
+    <script>
+      const options = document.querySelectorAll('.option');
+      const nextBtn = document.querySelector('.next-btn');
+
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          options.forEach(opt => opt.classList.remove('selected'));
+          option.classList.add('selected');
+          nextBtn.disabled = false;
+        });
+      });
+
+      nextBtn.addEventListener('click', () => {
+        alert('Next question will be displayed here.');
+        // Logic to display the next question can be added here
+      });
+    </script>
+</body>
+</html>
+      

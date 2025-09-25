@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fay Overlay — Modal Iframe (fix)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --overlay-bg: rgba(0,0,0,0.78); --duration: 360ms; --easing: cubic-bezier(.2,.9,.2,1); }
+
+    body {
+      background-color: #0a0a0a;
+      color: #e4e4e7;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    /* --- konten ringkas (ambilan dari kode asli) --- */
+    .hki_content_wrapper { z-index: 2; padding: 4rem 1rem; width:100%; max-width:600px; text-align:center; }
+    .hki_link_button { display:block; padding:1rem 1.5rem; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:#fafafa; text-decoration:none; font-weight:600; margin-bottom:0.5rem; transition:transform .25s, background .2s; }
+    .hki_link_button:hover{ transform: translateY(-4px); background: rgba(255,255,255,0.08); }
+
+    /* =================== MODAL =================== */
+    /* awalnya hidden: opacity 0 + visibility hidden + pointer-events none */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background-color: var(--overlay-bg);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity var(--duration) var(--easing), visibility 0s linear var(--duration);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* saat aktif: terlihat dan menerima interaksi */
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition: opacity var(--duration) var(--easing), visibility 0s linear 0s;
+    }
+
+    /* konten modal (efek zoom + slide) */
+    .modal-content {
+      width: 96%;
+      height: 88vh;
+      max-width: 1100px;
+      background: #0f1115;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(2,6,23,0.6);
+      transform: translateY(6vh) scale(0.985);
+      opacity: 0;
+      transition: transform calc(var(--duration) * 1.05) var(--easing), opacity var(--duration) var(--easing);
+    }
+
+    /* state saat modal show -> konten masuk */
+    .modal.show .modal-content {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    /* iframe memenuhi konten */
+    .modal-content iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: white;
+    }
+
+    /* close button */
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      z-index: 12;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: transform 220ms var(--easing), background 220ms;
+    }
+    .close-btn:hover { transform: rotate(90deg) scale(1.05); background: rgba(255,64,129,0.08); color:#ff89a8; }
+
+    /* responsive small screens: full height */
+    @media (max-width:640px) {
+      .modal-content { width:100%; height:100vh; border-radius:0; }
+      .close-btn { right: 8px; top: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="hki_content_wrapper">
+    <h1 class="hki_scramble_text">Fay Overlay</h1>
+    <p class="hki_subtitle">Mobile Developer & Digital Marketing</p>
+
+    <!-- biasa: target _blank tetap buka tab baru -->
+    <a href="https://www.blog.fay.my.id" target="_blank" class="hki_link_button">My Blog (new tab)</a>
+
+    <!-- tombol yang harus membuka modal -> jangan beri target="_blank" -->
+    <a href="https://example.com" class="hki_link_button iframe-btn">Example (buka di modal)</a>
+    <a href="https://www.fay.my.id/ai/chat" class="hki_link_button iframe-btn">Google (buka di modal)</a>
+  </main>
+
+  <!-- SINGLE modal (cukup satu) -->
+  <div id="iframeModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-content" role="document">
+      <button class="close-btn" aria-label="Tutup modal">&times;</button>
+      <iframe id="modalIframe" src="" title="Konten Modal"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // Elemen
+    const modal = document.getElementById('iframeModal');
+    const modalContent = modal.querySelector('.modal-content');
+    const modalIframe = document.getElementById('modalIframe');
+    const closeBtn = modal.querySelector('.close-btn');
+    const iframeButtons = document.querySelectorAll('.iframe-btn');
+
+    let lastActiveElement = null;
+
+    // Buka modal: set src lalu tambahkan kelas .show
+    function openModal(url) {
+      lastActiveElement = document.activeElement;
+      modalIframe.src = url;
+      // set aria
+      modal.setAttribute('aria-hidden', 'false');
+      // tambahkan show -> CSS akan animasikan
+      modal.classList.add('show');
+
+      // disable scroll background (sederhana)
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+
+      // fokus ke tombol close agar keyboard user bisa menutup
+      closeBtn.focus();
+    }
+
+    // Tutup modal: hapus kelas show -> transisi akan jalan
+    function closeModal() {
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+
+      // fokus balik ke elemen terakhir yang aktif (aksesibilitas)
+      if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
+        lastActiveElement.focus();
+      }
+      // restore scroll DAN bersihkan src setelah transisi selesai (lihat event listener)
+    }
+
+    // Pasang listener ke link .iframe-btn
+    iframeButtons.forEach(btn => {
+      // pastikan link tidak punya target _blank; jika ada, JS akan preventDefault
+      btn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        const url = btn.getAttribute('href');
+        if (!url) return;
+        openModal(url);
+      });
+    });
+
+    // Tutup lewat tombol close
+    closeBtn.addEventListener('click', () => closeModal());
+
+    // Tutup saat klik area overlay (di luar modal-content)
+    modal.addEventListener('click', (ev) => {
+      if (ev.target === modal) closeModal();
+    });
+
+    // Tutup dengan Escape
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && modal.classList.contains('show')) {
+        closeModal();
+      }
+    });
+
+    // Setelah transisi opacity modal selesai -> kalau modal hidden, bersihkan iframe src & restore scroll
+    modal.addEventListener('transitionend', (ev) => {
+      // hanya tangani transition opacity pada modal (bukan transform pada content)
+      if (ev.target === modal && ev.propertyName === 'opacity') {
+        if (!modal.classList.contains('show')) {
+          // sudah selesai hide
+          modalIframe.src = ''; // hentikan load iframe
+          document.documentElement.style.overflow = '';
+          document.body.style.overflow = '';
+        } else {
+          // sudah muncul (tidak perlu apa-apa)
+        }
+      }
+    });
+  </script>
+</body>
+</html>

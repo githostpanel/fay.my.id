@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gallery Foto Interaktif</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --text: #f4f4f5;
+      --accent: #3b82f6;
+      --duration: 350ms;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1rem;
+    }
+
+    h1 { text-align: center; margin-bottom: 1rem; }
+
+    /* Filter Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .controls input,
+    .controls select {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: var(--text);
+    }
+
+    /* Gallery Grid */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: #111;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: transform 0.25s;
+      cursor: pointer;
+    }
+    .card:hover { transform: scale(1.03); }
+
+    .card img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      height: 160px;
+    }
+    .card p {
+      margin: 0;
+      padding: 0.75rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--duration) ease;
+      z-index: 1000;
+    }
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 10px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      transform: scale(0.95);
+      opacity: 0;
+      transition: transform var(--duration) ease, opacity var(--duration) ease;
+    }
+    .modal.show img {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* Controls modal */
+    .close, .prev, .next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.6);
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .close:hover, .prev:hover, .next:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .close {
+      top: 5%;
+      right: 5%;
+      transform: none;
+      font-size: 2.2rem;
+    }
+    .prev { left: 5%; }
+    .next { right: 5%; }
+
+    .caption {
+      position: absolute;
+      bottom: 20px;
+      color: #fff;
+      font-size: 1rem;
+      text-align: center;
+      width: 100%;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    }
+  </style>
+</head>
+<body>
+  <h1>📸 Gallery Foto Interaktif</h1>
+
+  <!-- Filter -->
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Cari foto...">
+    <select id="categoryFilter">
+      <option value="all">Semua Kategori</option>
+      <option value="nature">Alam</option>
+      <option value="city">Kota</option>
+      <option value="animals">Hewan</option>
+    </select>
+  </div>
+
+  <!-- Gallery -->
+  <div class="gallery" id="gallery">
+    <div class="card" data-category="animals" data-caption="Kodok Hijau">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/kodok?width=400&height=300" alt="Kodok Hijau">
+      <p>Kodok Hijau</p>
+    </div>
+    <div class="card" data-category="nature" data-caption="Hutan Asri">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/hutan?width=400&height=300" alt="Hutan Asri">
+      <p>Hutan Asri</p>
+    </div>
+    <div class="card" data-category="city" data-caption="Gedung Kota">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/gedung?width=400&height=300" alt="Gedung Kota">
+      <p>Gedung Kota</p>
+    </div>
+    <div class="card" data-category="animals" data-caption="Burung Elang">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/burung?width=400&height=300" alt="Burung Elang">
+      <p>Burung Elang</p>
+    </div>
+    <div class="card" data-category="nature" data-caption="Gunung Tinggi">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/gunung?width=400&height=300" alt="Gunung Tinggi">
+      <p>Gunung Tinggi</p>
+    </div>
+  </div>
+
+  <!-- Modal Viewer -->
+  <div class="modal" id="modal">
+    <button class="close">&times;</button>
+    <button class="prev">&#10094;</button>
+    <img id="modalImg" src="" alt="">
+    <button class="next">&#10095;</button>
+    <div class="caption" id="modalCaption"></div>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const gallery = document.getElementById("gallery");
+    const cards = gallery.querySelectorAll(".card");
+
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modalImg");
+    const modalCaption = document.getElementById("modalCaption");
+    const closeBtn = modal.querySelector(".close");
+    const prevBtn = modal.querySelector(".prev");
+    const nextBtn = modal.querySelector(".next");
+
+    let currentIndex = -1;
+    let currentCategory = "all";
+    let filteredCards = [...cards];
+
+    function filterGallery() {
+      const search = searchInput.value.toLowerCase();
+      const category = categoryFilter.value;
+      currentCategory = category;
+
+      filteredCards = [];
+      cards.forEach((card, idx) => {
+        const text = card.querySelector("p").textContent.toLowerCase();
+        const cardCategory = card.dataset.category;
+        const matchesSearch = text.includes(search);
+        const matchesCategory = category === "all" || cardCategory === category;
+
+        if (matchesSearch && matchesCategory) {
+          card.style.display = "";
+          filteredCards.push(card);
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
+    searchInput.addEventListener("input", filterGallery);
+    categoryFilter.addEventListener("change", filterGallery);
+
+    // Modal
+    function openModal(index) {
+      const card = filteredCards[index];
+      if (!card) return;
+      const img = card.querySelector("img");
+      modalImg.src = img.src;
+      modalCaption.textContent = card.dataset.caption || img.alt;
+      modal.classList.add("show");
+      currentIndex = index;
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+      modalImg.src = "";
+    }
+
+    function showPrev() {
+      if (currentIndex > 0) {
+        openModal(currentIndex - 1);
+      }
+    }
+
+    function showNext() {
+      if (currentIndex < filteredCards.length - 1) {
+        openModal(currentIndex + 1);
+      }
+    }
+
+    cards.forEach((card, idx) => {
+      card.addEventListener("click", () => {
+        filterGallery(); // update filteredCards dulu
+        const visibleIndex = filteredCards.indexOf(card);
+        openModal(visibleIndex);
+      });
+    });
+
+    closeBtn.addEventListener("click", closeModal);
+    prevBtn.addEventListener("click", showPrev);
+    nextBtn.addEventListener("click", showNext);
+
+    // Keyboard
+    document.addEventListener("keydown", e => {
+      if (!modal.classList.contains("show")) return;
+      if (e.key === "Escape") closeModal();
+      if (e.key === "ArrowLeft") showPrev();
+      if (e.key === "ArrowRight") showNext();
+    });
+
+    // init
+    filterGallery();
+  </script>
+</body>
+</html>

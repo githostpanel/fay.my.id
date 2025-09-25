@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Headshot Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 900px;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3b82f6;
+            animation: spin 1s ease infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="container bg-white p-8 rounded-2xl shadow-xl w-full">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">Generator Headshot Profesional</h1>
+        <p class="text-center text-gray-500 mb-8">Ubah foto wajah Anda menjadi headshot profesional berkualitas tinggi.</p>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Area Input dan Kontrol -->
+            <div class="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50 rounded-xl border border-gray-200">
+                <label for="imageUpload" class="cursor-pointer bg-blue-500 text-white font-medium py-3 px-6 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-200 mb-4">
+                    Pilih Gambar Wajah
+                </label>
+                <input type="file" id="imageUpload" class="hidden" accept="image/*">
+                <div id="imagePreview" class="w-full h-auto max-h-64 object-contain rounded-xl overflow-hidden bg-gray-200 flex items-center justify-center p-4">
+                    <span class="text-gray-400 text-center">Pratinjau gambar Anda akan muncul di sini.</span>
+                </div>
+                
+                <div class="w-full mt-4">
+                    <label for="apiKeys" class="block text-gray-700 font-medium mb-2">API Keys (Opsional, pisahkan dengan koma atau baris baru)</label>
+                    <textarea id="apiKeys" rows="3" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    <p class="text-sm text-gray-500 mt-1">API key dari lingkungan Canvas akan digunakan secara otomatis. Masukkan API key tambahan di sini.</p>
+                </div>
+
+                <div class="w-full mt-6 p-4 bg-gray-100 rounded-lg border border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">✨ Tingkatkan Prompt Anda</h2>
+                    <p class="text-sm text-gray-600 mb-4">Jelaskan profesi atau gaya yang Anda inginkan (misal: "wawancara kerja", "profesional kreatif"), dan AI akan menyarankan prompt detail.</p>
+                    <textarea id="llmPromptInput" rows="2" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 'wawancara kerja'"></textarea>
+                    <button id="enhancePromptBtn" class="mt-4 w-full bg-indigo-500 text-white font-medium py-2 px-4 rounded-full shadow-lg hover:bg-indigo-600 transition-colors duration-200">
+                        ✨ Saran Prompt
+                    </button>
+                </div>
+
+                <div class="w-full mt-4">
+                    <label for="userPrompt" class="block text-gray-700 font-medium mb-2">Prompt Tambahan</label>
+                    <textarea id="userPrompt" rows="2" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 'dengan kemeja putih'"></textarea>
+                </div>
+
+                <button id="generateBtn" class="mt-6 w-full bg-green-500 text-white font-medium py-3 px-6 rounded-full shadow-lg hover:bg-green-600 transition-colors duration-200 flex items-center justify-center">
+                    <span id="btnText">Buat Headshot</span>
+                    <div id="spinner" class="spinner hidden"></div>
+                </button>
+                <p id="statusMessage" class="mt-4 text-center text-sm text-gray-600"></p>
+            </div>
+
+            <!-- Area Hasil -->
+            <div class="flex-1 flex flex-col items-center p-6 bg-gray-50 rounded-xl border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Hasil Headshot</h2>
+                <div class="w-full h-auto aspect-square bg-gray-200 rounded-xl overflow-hidden shadow-md flex items-center justify-center">
+                    <img id="resultImage" class="w-full h-full object-contain" src="https://placehold.co/512x512/e5e7eb/7f8c8d?text=Hasil+di+sini" alt="Hasil Gambar">
+                </div>
+                <button id="downloadBtn" class="mt-4 w-full bg-blue-500 text-white font-medium py-3 px-6 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-200 hidden">
+                    Unduh Gambar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API key untuk Gemini API. Biarkan kosong, Canvas akan menyediakannya saat runtime.
+        const defaultApiKeys = [
+            "AIzaSyBpXQQx-P6t08ukOeGOWXNQpCJhCXklmlo",
+            "AIzaSyCljyWdpQZKjrhLqCJg36jjT3yZD4UB1q0"
+        ];
+        const imageApiUrlBase = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=`;
+        const textApiUrlBase = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=`;
+
+        // Dapatkan elemen-elemen DOM
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const generateBtn = document.getElementById('generateBtn');
+        const btnText = document.getElementById('btnText');
+        const spinner = document.getElementById('spinner');
+        const resultImage = document.getElementById('resultImage');
+        const statusMessage = document.getElementById('statusMessage');
+        const apiKeysTextarea = document.getElementById('apiKeys');
+        const userPromptTextarea = document.getElementById('userPrompt');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const llmPromptInput = document.getElementById('llmPromptInput');
+        const enhancePromptBtn = document.getElementById('enhancePromptBtn');
+
+        let uploadedBase64Image = null;
+        let uploadedMimeType = null;
+        const MAX_FILE_SIZE_MB = 5;
+
+        // Mendengarkan saat file dipilih
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                // Tambahkan validasi ukuran file
+                if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+                    statusMessage.textContent = `Gambar terlalu besar. Ukuran maksimum adalah ${MAX_FILE_SIZE_MB}MB.`;
+                    uploadedBase64Image = null;
+                    return;
+                }
+
+                statusMessage.textContent = 'Gambar siap diunggah.';
+                uploadedMimeType = file.type;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        imagePreview.innerHTML = '';
+                        imagePreview.appendChild(img);
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'contain';
+                    };
+                    img.src = e.target.result;
+                    // Ambil data Base64 setelah 'data:image/png;base64,'
+                    uploadedBase64Image = e.target.result.split(',')[1];
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Function untuk memanggil API
+        async function fetchWithRetry(urlBase, payload, keys) {
+            let lastError = null;
+            for (const key of keys) {
+                if (!key) continue;
+
+                const apiUrl = urlBase + key;
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status === 429) {
+                        continue;
+                    }
+
+                    if (!response.ok) {
+                        const errorBody = await response.json();
+                        const errorMessage = errorBody?.error?.message || response.statusText;
+                        throw new Error(`Error API: ${response.status} - ${errorMessage}`);
+                    }
+                    
+                    return await response.json();
+
+                } catch (error) {
+                    console.error('Terjadi kesalahan:', error);
+                    lastError = error;
+                }
+            }
+            throw lastError;
+        }
+
+        // Mendengarkan klik tombol "Saran Prompt"
+        enhancePromptBtn.addEventListener('click', async () => {
+            const userText = llmPromptInput.value.trim();
+            if (!userText) {
+                statusMessage.textContent = 'Harap masukkan deskripsi untuk mendapatkan saran prompt.';
+                return;
+            }
+
+            statusMessage.textContent = 'AI sedang menyempurnakan prompt Anda...';
+            enhancePromptBtn.disabled = true;
+
+            const baseInstruction = "Anda adalah fotografer profesional. Buatlah prompt yang sangat detail dan spesifik untuk generator gambar AI, termasuk pencahayaan, jenis kamera, resolusi, dan komposisi, berdasarkan deskripsi singkat berikut. Prompt harus dalam bahasa Inggris.";
+            
+            const payload = {
+                contents: [{
+                    parts: [{
+                        text: `${baseInstruction}\n\nDeskripsi: "${userText}"`
+                    }]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    topP: 0.8,
+                    topK: 40,
+                }
+            };
+            
+            const additionalKeys = apiKeysTextarea.value.split(/,|\n/).map(key => key.trim()).filter(key => key.length > 0);
+            const allKeys = [...defaultApiKeys, ...additionalKeys];
+            
+            try {
+                const result = await fetchWithRetry(textApiUrlBase, payload, allKeys);
+                const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (generatedText) {
+                    userPromptTextarea.value = generatedText;
+                    statusMessage.textContent = 'Saran prompt berhasil dibuat! Silakan klik "Buat Headshot" di bawah.';
+                } else {
+                    statusMessage.textContent = 'Gagal menghasilkan prompt. Respons API tidak valid.';
+                }
+            } catch (error) {
+                statusMessage.textContent = `Gagal membuat saran prompt. Terjadi kesalahan: ${error ? error.message : 'Silakan coba lagi.'}`;
+            } finally {
+                enhancePromptBtn.disabled = false;
+            }
+        });
+
+        // Mendengarkan klik tombol "Buat Headshot"
+        generateBtn.addEventListener('click', async () => {
+            if (!uploadedBase64Image) {
+                statusMessage.textContent = 'Harap pilih gambar terlebih dahulu.';
+                return;
+            }
+
+            // Nonaktifkan tombol unduh
+            downloadBtn.classList.add('hidden');
+            
+            // Tampilkan indikator loading
+            btnText.textContent = 'Memproses...';
+            spinner.classList.remove('hidden');
+            generateBtn.disabled = true;
+            statusMessage.textContent = 'AI sedang membuat gambar Anda. Ini mungkin memakan waktu beberapa saat...';
+
+            // Mendefinisikan prompt untuk AI yang lebih detail untuk hasil terbaik
+            const basePrompt = "a professional, formal headshot of a person with a solid red background, studio lighting, soft fill light, sharp key light from the side, elegant rim lighting, highly detailed, masterpiece, photorealistic, 8K resolution, shot with a Canon EOS R6, clear focus on the face, flawless skin texture, sharp and clear eyes, elegant professional outfit, ultra-detailed";
+            const userPrompt = userPromptTextarea.value.trim();
+            const finalPrompt = userPrompt ? `${basePrompt}, ${userPrompt}` : basePrompt;
+
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: finalPrompt },
+                        {
+                            inlineData: {
+                                // MimeType sekarang dinamis
+                                mimeType: uploadedMimeType,
+                                data: uploadedBase64Image
+                            }
+                        }
+                    ]
+                }],
+                generationConfig: {
+                    responseModalities: ['TEXT', 'IMAGE']
+                }
+            };
+
+            const additionalKeys = apiKeysTextarea.value.split(/,|\n/).map(key => key.trim()).filter(key => key.length > 0);
+            const allKeys = [...defaultApiKeys, ...additionalKeys];
+            
+            try {
+                const result = await fetchWithRetry(imageApiUrlBase, payload, allKeys);
+                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                if (base64Data) {
+                    const imageUrl = `data:image/png;base64,${base64Data}`;
+                    resultImage.src = imageUrl;
+                    statusMessage.textContent = 'Gambar headshot berhasil dibuat!';
+                    downloadBtn.classList.remove('hidden');
+                } else {
+                    throw new Error('Respons API tidak mengandung data gambar yang diharapkan.');
+                }
+            } catch (error) {
+                statusMessage.textContent = `Gagal membuat headshot. Terjadi kesalahan: ${error ? error.message : 'Tidak ada API key yang berfungsi.'}`;
+                resultImage.src = 'https://placehold.co/512x512/e5e7eb/cc0000?text=Error';
+            } finally {
+                btnText.textContent = 'Buat Headshot';
+                spinner.classList.add('hidden');
+                generateBtn.disabled = false;
+            }
+        });
+
+        // Mendengarkan klik tombol "Unduh Gambar"
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = resultImage.src;
+            link.download = 'headshot_profesional.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>

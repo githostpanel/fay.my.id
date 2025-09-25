@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gallery Foto — Interaktif & Lazy Load</title>
+  <style>
+    :root{
+      --bg:#0a0a0a; --card:#0f1115; --muted:#9ca3af; --accent:#7c3aed;
+      --gap:12px; --batch:5; --duration:320ms;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,system-ui,Arial; background:var(--bg); color:#e6edf3;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    header{padding:20px 18px; max-width:1100px;margin:0 auto; display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{margin:0;font-size:18px}
+    .controls{max-width:1100px;margin:0 auto;padding:0 18px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .search {
+      flex:1; min-width:200px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04);
+      padding:8px 12px;border-radius:10px;display:flex;align-items:center;gap:8px;
+    }
+    .search input{background:transparent;border:0;outline:none;color:inherit;width:100%;font-size:14px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,0.02);color:var(--muted);font-size:13px;cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
+    .chip.active{background:linear-gradient(90deg,var(--accent),#ec4899);color:white;transform:translateY(-2px);border:none}
+
+    /* grid */
+    .grid-wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--gap)}
+    .card{background:var(--card);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;display:flex;flex-direction:column;min-height:140px}
+    .thumb{width:100%;height:140px;object-fit:cover;display:block;background:linear-gradient(90deg,#0c0c0c,#111)}
+    .meta{padding:10px 12px;font-size:14px;color:var(--muted);line-height:1.2}
+    .tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+    .tag{font-size:11px;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted)}
+
+    /* loading placeholder / shimmer for cards (wrap element has class placeholder) */
+    .placeholder{position:relative;overflow:hidden}
+    .placeholder::after{
+      content:'';position:absolute;inset:0;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      transform:translateX(-100%);animation: shimmer 1.2s linear infinite;
+      opacity:0.6;
+    }
+    @keyframes shimmer{to{transform:translateX(100%)}} 
+    img.lazy{filter:blur(10px);transition:filter 430ms ease, transform 320ms ease;transform:scale(1.02)}
+    img.lazy.loaded{filter:blur(0);transform:scale(1)}
+
+    /* sentinel space */
+    #sentinel{height:60px}
+
+    /* modal */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;transition:opacity var(--duration) ease;z-index:1200}
+    .overlay.open{opacity:1;visibility:visible}
+    .viewer{position:relative;max-width:1200px;width:100%;max-height:92vh;border-radius:12px;display:flex;align-items:center;justify-content:center}
+    .viewer .frame{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+    /* viewer img is wrapped inside .img-wrapper (so shimmer can target wrapper) */
+    .img-wrapper{position:relative;display:inline-block;max-width:100%;max-height:86vh;border-radius:10px;overflow:hidden;background:#111}
+    .img-wrapper.loading::after{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 20%, rgba(255,255,255,0) 40%);
+      animation:shimmer 1.2s linear infinite;opacity:0.5;
+    }
+    .viewer img{max-width:100%;max-height:86vh;border-radius:0;box-shadow:0 20px 50px rgba(0,0,0,0.6);opacity:0;transform:scale(0.98);transition:opacity 280ms ease, transform 280ms ease;display:block}
+    .viewer img.show{opacity:1;transform:scale(1)}
+
+    /* controls */
+    .btn-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.04);color:#fff;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:6}
+    .btn-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.45);border:none;color:#fff;padding:12px;border-radius:10px;cursor:pointer;z-index:6}
+    .nav-left{left:12px}
+    .nav-right{right:12px}
+    .btn-nav.disabled{opacity:.25;pointer-events:none}
+    .caption{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;color:#fff;font-size:14px;opacity:0.95;z-index:6}
+    .index-indicator{position:absolute;left:14px;top:16px;color:var(--muted);font-size:13px;z-index:6}
+
+    /* mobile adjustments */
+    @media (max-width:700px){
+      .nav-left{left:8px}
+      .nav-right{right:8px}
+      .viewer img{max-height:76vh}
+      .caption{font-size:13px}
+    }
+
+    /* accessibility focus */
+    .chip:focus,.btn-close:focus,.btn-nav:focus{outline:2px solid rgba(124,58,237,0.45);outline-offset:3px}
+	
+	
+	.gallery {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem;
+  scroll-behavior: smooth;
+}
+.gallery::-webkit-scrollbar {
+  height: 10px;
+}
+.gallery::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 5px;
+}
+
+
+.card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+#sentinel {
+  height: 1px;
+}
+
+
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Gallery Foto</h1>
+  <div style="opacity:.85;font-size:13px">Interaktif • Lazy load • Swipe • Keyboard</div>
+</header>
+
+<div class="controls" aria-label="kontrol gallery">
+  <div class="search" role="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.7"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <input id="q" placeholder="Cari caption atau tag..." aria-label="Cari foto">
+  </div>
+  <div class="chips" id="chips" role="toolbar" aria-label="Filter kategori"></div>
+</div>
+
+<main class="grid-wrap">
+ 
+  
+  <div class="grid" id="grid"></div>
+<div id="sentinel"></div>
+
+</main>
+
+<!-- Modal / viewer -->
+<div id="overlay" class="overlay" role="dialog" aria-hidden="true" aria-modal="true">
+  <div class="viewer" role="document">
+    <button class="btn-close" id="btnClose" aria-label="Tutup (Esc)">✕</button>
+    <button class="btn-nav nav-left" id="btnPrev" aria-label="Sebelumnya (Arrow Left)">◀</button>
+    <div class="frame">
+      <div class="img-wrapper loading"><img id="viewerImg" alt=""></div>
+    </div>
+    <button class="btn-nav nav-right" id="btnNext" aria-label="Berikutnya (Arrow Right)">▶</button>
+    <div class="index-indicator" id="idxIndicator">0 / 0</div>
+    <div class="caption" id="viewerCaption"></div>
+  </div>
+</div>
+
+<script>
+/* -----------------------
+   Data: ganti/tambah sesuai kebutuhan
+   thumb = ukuran kecil, full = ukuran besar (modal)
+   ----------------------- */
+
+const imagesData = [
+  // manual
+  {
+    id: 'manual1',
+    title: 'Wallpaper Pantai',
+    caption: 'Pantai tropis biru',
+    category: 'nature',
+    thumb: 'https://picsum.photos/id/29/400/300',
+    full: 'https://picsum.photos/id/29/1200/900'
+  },
+  {
+    id: 'manual2',
+    title: 'Kota Malam',
+    caption: 'Gedung kota dengan lampu neon',
+    category: 'city',
+    thumb: 'https://picsum.photos/id/1011/400/300',
+    full: 'https://picsum.photos/id/1011/1200/900'
+  },
+
+  // auto generate (tool)
+  {
+    id: 'gen1',
+    title: 'Kodok Hijau',
+    caption: 'Kodok Hijau',
+    category: 'animals',
+    thumb: 'https://tools.fay.my.id/ai/generator/prompt/kodok?width=400&height=300',
+    full:  'https://tools.fay.my.id/ai/generator/prompt/kodok?width=1200&height=900'
+  },
+  {
+    id: 'gen2',
+    title: 'Hutan Asri',
+    caption: 'Hutan Asri',
+    category: 'nature',
+    thumb: 'https://tools.fay.my.id/ai/generator/prompt/hutan?width=400&height=300',
+    full:  'https://tools.fay.my.id/ai/generator/prompt/hutan?width=1200&height=900'
+  },
+  {
+    id: 'gen3',
+    title: 'Burung Elang',
+    caption: 'Burung Elang',
+    category: 'animals',
+    thumb: 'https://tools.fay.my.id/ai/generator/prompt/burung?width=400&height=300',
+    full:  'https://tools.fay.my.id/ai/generator/prompt/burung?width=1200&height=900'
+  }
+];
+
+// add some autogenerated examples
+for (let i=1;i<=8;i++){
+  imagesData.push({
+    id: 'auto'+i,
+    title: `Auto ${i}`,
+    caption: `Prompt ${i}`,
+    category: i % 2 === 0 ? 'nature' : 'city',
+    thumb: `https://tools.fay.my.id/ai/generator/prompt/prompt${i}?width=400&height=300&seed=${i}`,
+    full:  `https://tools.fay.my.id/ai/generator/prompt/prompt${i}?width=1200&height=900&seed=${i}`
+  });
+}
+
+/* ---------- state ---------- */
+const BATCH = 5;
+let filteredIndices = imagesData.map((_,i)=>i); // indices after filter/search
+let renderPointer = 0; // how many rendered from filteredIndices
+const grid = document.getElementById('grid');
+const sentinel = document.getElementById('sentinel');
+
+
+const qInput = document.getElementById('q');
+const chipsWrap = document.getElementById('chips');
+
+/* modal elements */
+const overlay = document.getElementById('overlay');
+const viewerImg = document.getElementById('viewerImg');
+const viewerCaption = document.getElementById('viewerCaption');
+const btnClose = document.getElementById('btnClose');
+const btnPrev = document.getElementById('btnPrev');
+const btnNext = document.getElementById('btnNext');
+const idxIndicator = document.getElementById('idxIndicator');
+
+let lastActiveElement = null;
+let currentModalPos = 0; // index in filteredIndices
+let touchStartX = 0, touchStartTime = 0;
+
+/* ---------- build tag chips ---------- */
+const allTags = Array.from(new Set(imagesData.flatMap(i=>[i.category]))).sort();
+let activeTags = new Set();
+
+function renderChips(){
+  chipsWrap.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = 'chip' + (activeTags.size===0 ? ' active' : '');
+  all.textContent = 'Semua';
+  all.addEventListener('click', ()=>{ activeTags.clear(); renderChips(); applyFilter(true); });
+  chipsWrap.appendChild(all);
+  all.setAttribute('aria-pressed', activeTags.size===0);
+
+  allTags.forEach(tag=>{
+    const b = document.createElement('button');
+    b.className = 'chip' + (activeTags.has(tag) ? ' active' : '');
+    b.textContent = tag;
+    b.addEventListener('click', ()=> {
+      if (activeTags.has(tag)) activeTags.delete(tag); else activeTags.add(tag);
+      renderChips();
+      applyFilter(true);
+    });
+    b.setAttribute('aria-pressed', activeTags.has(tag));
+    chipsWrap.appendChild(b);
+  });
+}
+
+/* ---------- lazy image observer ---------- */
+const imgObserver = new IntersectionObserver((entries, obs)=>{
+  entries.forEach(entry=>{
+    if (!entry.isIntersecting) return;
+    const img = entry.target;
+    const src = img.dataset.src;
+    if (!src) { obs.unobserve(img); return; }
+
+    img.src = src;
+    img.loading = 'lazy';
+    img.addEventListener('load', () => {
+      img.classList.add('loaded');
+      if (img.parentElement) img.parentElement.classList.remove('placeholder');
+    }, { once:true });
+
+    // ✅ Preload versi full saat thumb terlihat
+    const cardIdxStr = img.closest('.card')?.dataset.idx;
+    if (cardIdxStr !== undefined) {
+      const cardIdx = Number(cardIdxStr);
+      const d = imagesData[cardIdx];
+      if (d?.full) {
+        const preload = new Image();
+        preload.src = d.full;
+      }
+    }
+
+    obs.unobserve(img);
+  });
+},{rootMargin:'200px 0px 200px 0px', threshold: 0.01});
+
+
+/* ---------- sentinel observer for batch loading ---------- */
+const sentinelObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      loadNextBatch();
+    }
+  });
+}, { rootMargin: '300px' });
+
+/* ---------- render batch ---------- */
+function createCard(dataIndex){
+  const d = imagesData[dataIndex];
+  const fig = document.createElement('article');
+  fig.className = 'card placeholder';
+  fig.setAttribute('role','listitem');
+  fig.dataset.idx = dataIndex; // global index
+
+  const img = document.createElement('img');
+  img.className = 'thumb lazy';
+  img.alt = d.caption || d.title;
+  img.dataset.src = d.thumb;
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.innerHTML = `<strong style="color:#fff">${escapeHtml(d.title)}</strong><div style="margin-top:6px">${escapeHtml(d.caption)}</div>`;
+  const tagsWrap = document.createElement('div');
+  tagsWrap.className = 'tags';
+  const tagEl = document.createElement('span'); tagEl.className='tag'; tagEl.textContent = d.category; tagsWrap.appendChild(tagEl);
+  meta.appendChild(tagsWrap);
+
+  fig.appendChild(img);
+  fig.appendChild(meta);
+
+  // observe lazy load
+  imgObserver.observe(img);
+  return fig;
+}
+
+function loadNextBatch(){
+  if (renderPointer >= filteredIndices.length) return;
+  const end = Math.min(renderPointer + BATCH, filteredIndices.length);
+  const fragment = document.createDocumentFragment();
+  for (let i = renderPointer; i < end; i++){
+    const globalIdx = filteredIndices[i];
+    const card = createCard(globalIdx);
+    fragment.appendChild(card);
+
+    // kasih animasi transisi masuk
+    requestAnimationFrame(() => {
+      setTimeout(() => card.classList.add("visible"), 40);
+    });
+  }
+  grid.appendChild(fragment);
+  renderPointer = end;
+}
+
+
+/* ---------- filtering / searching ---------- */
+function applyFilter(resetPointer = false){
+  const q = (qInput.value || '').trim().toLowerCase();
+  const tags = Array.from(activeTags);
+  filteredIndices = imagesData.map((_,i)=>i).filter(i=>{
+    const d = imagesData[i];
+    const tagMatch = tags.length === 0 ? true : tags.includes(d.category);
+    const text = (d.title + ' ' + d.caption + ' ' + d.category).toLowerCase();
+    const textMatch = q === '' ? true : text.includes(q);
+    return tagMatch && textMatch;
+  });
+  // reset grid
+  grid.innerHTML = '';
+  renderPointer = 0;
+  // render initial batch
+  loadNextBatch();
+  // ensure sentinel observed even if few items
+  if (filteredIndices.length === 0){
+    const empty = document.createElement('div');
+    empty.style.padding = '28px'; empty.style.color = 'var(--muted)'; empty.textContent = 'Tidak ada gambar.';
+    grid.appendChild(empty);
+  }
+}
+
+/* debounce helper */
+function debounce(fn, ms=180){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); } }
+
+/* ---------- open modal ---------- */
+function openViewerByGlobalIndex(globalIndex){
+  const posInFiltered = filteredIndices.indexOf(globalIndex);
+  if (posInFiltered === -1) return; // not visible in current filter
+  currentModalPos = posInFiltered;
+  showViewer();
+}
+
+function showViewer(){
+  const globalIdx = filteredIndices[currentModalPos];
+  const d = imagesData[globalIdx];
+  if (!d) return;
+
+  lastActiveElement = document.activeElement;
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden','false');
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+
+  // Reset
+  viewerImg.classList.remove('show');
+  const wrapper = viewerImg.closest('.img-wrapper');
+  wrapper.classList.add('loading');   // kasih shimmer on wrapper
+
+  // tampilkan thumbnail dulu (tunggu kalau thumbnail belum keload)
+  // find card element to get its already-loaded thumb (if present in DOM)
+  const globalIdxValue = imagesData[globalIdx] ? globalIdx : null;
+  let thumbSrc = d.thumb;
+  // try to find rendered card & actual loaded src (in case thumb replaced)
+  const renderedCard = grid.querySelector(`.card[data-idx="${globalIdx}"]`);
+  if (renderedCard) {
+    const renderedImg = renderedCard.querySelector('img.thumb');
+    if (renderedImg && renderedImg.src) thumbSrc = renderedImg.src;
+  }
+
+  viewerImg.src = thumbSrc;
+  viewerImg.alt = d.caption || d.title;
+  viewerCaption.textContent = d.caption || d.title;
+  idxIndicator.textContent = `${currentModalPos+1} / ${filteredIndices.length}`;
+
+  // preload full in background
+  const full = new Image();
+  full.src = d.full;
+
+  if (full.complete) {
+    // already cached
+    viewerImg.src = full.src;
+    wrapper.classList.remove('loading');
+    viewerImg.classList.add('show');
+  } else {
+    full.onload = () => {
+      // swap to full only when loaded
+      viewerImg.src = full.src;
+      wrapper.classList.remove('loading');
+      viewerImg.classList.add('show');
+    };
+    // also handle error
+    full.onerror = () => {
+      // keep thumb, remove loading
+      wrapper.classList.remove('loading');
+      viewerImg.classList.add('show');
+    };
+  }
+
+  updateNavButtons();
+  btnClose.focus();
+}
+
+/* ---------- close viewer ---------- */
+function closeViewer(){
+  overlay.classList.remove('open');
+  overlay.setAttribute('aria-hidden','true');
+  viewerImg.classList.remove('show');
+  // restore scroll
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
+  // restore focus
+  if (lastActiveElement && lastActiveElement.focus) lastActiveElement.focus();
+  // clear src after small delay to stop large downloads when closed
+  setTimeout(()=> viewerImg.src = '', 450);
+}
+
+/* ---------- navigation ---------- */
+function updateNavButtons(){
+  btnPrev.classList.toggle('disabled', currentModalPos === 0);
+  btnNext.classList.toggle('disabled', currentModalPos >= filteredIndices.length - 1);
+  idxIndicator.textContent = `${Math.max(0,currentModalPos+1)} / ${filteredIndices.length}`;
+}
+function goPrev(){ if (currentModalPos > 0){ currentModalPos--; showViewer(); } }
+function goNext(){ if (currentModalPos < filteredIndices.length - 1){ currentModalPos++; showViewer(); } }
+
+/* ---------- event delegation for grid clicks ---------- */
+grid.addEventListener('click', (ev)=>{
+  const card = ev.target.closest('.card');
+  if (!card) return;
+  const globalIdx = Number(card.dataset.idx);
+  openViewerByGlobalIndex(globalIdx);
+});
+
+/* ---------- control bindings ---------- */
+btnClose.addEventListener('click', closeViewer);
+btnPrev.addEventListener('click', goPrev);
+btnNext.addEventListener('click', goNext);
+
+// overlay click to close (when clicking backdrop)
+overlay.addEventListener('click', (e)=>{ if (e.target === overlay) closeViewer(); });
+
+// keyboard
+document.addEventListener('keydown', (e)=>{
+  if (overlay.classList.contains('open')){
+    if (e.key === 'Escape') closeViewer();
+    if (e.key === 'ArrowLeft') goPrev();
+    if (e.key === 'ArrowRight') goNext();
+  }
+});
+
+// touch swipe support for viewer
+overlay.addEventListener('touchstart', (e)=>{
+  if (!overlay.classList.contains('open')) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartTime = Date.now();
+},{passive:true});
+overlay.addEventListener('touchend', (e)=>{
+  if (!overlay.classList.contains('open')) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dt = Date.now() - touchStartTime;
+  if (Math.abs(dx) > 50 && dt < 600){
+    if (dx > 0) goPrev(); else goNext();
+  }
+});
+
+// keyboard focus trap minimal: keep focus on close button when open (basic)
+overlay.addEventListener('keydown', (e)=>{
+  if (e.key === 'Tab' && overlay.classList.contains('open')){
+    e.preventDefault();
+    btnClose.focus();
+  }
+});
+
+/* ---------- initial rendering & behaviors ---------- */
+renderChips();
+applyFilter(true);
+
+// bind search
+qInput.addEventListener('input', debounce(()=> applyFilter(true), 220));
+
+// observe sentinel for infinite/batched loading
+sentinelObserver.observe(sentinel);
+
+/* ---------- helper: escape html (small safety) ---------- */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+
+
+</script>
+</body>
+</html>
