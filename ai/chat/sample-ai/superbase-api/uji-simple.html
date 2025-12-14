@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>AI Chatbot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 420px;
+  background: #020617;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0,0,0,.4);
+}
+
+.chat-header {
+  padding: 14px;
+  background: #020617;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px solid #1e293b;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 12px;
+  max-width: 85%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.user {
+  background: #2563eb;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+
+.bot {
+  background: #1e293b;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.suggestions button {
+  background: #020617;
+  color: #93c5fd;
+  border: 1px solid #1e293b;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.suggestions button:hover {
+  background: #1e293b;
+}
+
+.chat-input {
+  display: flex;
+  border-top: 1px solid #1e293b;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  outline: none;
+  background: #020617;
+  color: white;
+}
+
+.chat-input button {
+  padding: 0 16px;
+  background: #2563eb;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">🤖 AI Chatbot</div>
+
+  <div id="messages" class="chat-messages"></div>
+
+  <div class="chat-input">
+    <input id="input" placeholder="Ketik pertanyaan..." />
+    <button onclick="sendMessage()">Kirim</button>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://edoyuwjhdztxlktqmhsl.supabase.co/functions/v1/explain";
+const API_KEY = "PASTE_API_KEY_ANON_KAMU_DI_SINI";
+
+function addMessage(text, sender) {
+  const div = document.createElement("div");
+  div.className = `message ${sender}`;
+  div.innerText = text;
+  document.getElementById("messages").appendChild(div);
+  div.scrollIntoView({ behavior: "smooth" });
+}
+
+function addSuggestions(list) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "suggestions";
+
+  list.forEach(text => {
+    const btn = document.createElement("button");
+    btn.innerText = text;
+    btn.onclick = () => sendMessage(text);
+    wrapper.appendChild(btn);
+  });
+
+  document.getElementById("messages").appendChild(wrapper);
+}
+
+async function sendMessage(textFromButton = null) {
+  const input = document.getElementById("input");
+  const text = textFromButton || input.value;
+  if (!text) return;
+
+  addMessage(text, "user");
+  input.value = "";
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": API_KEY,
+        "Authorization": `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({ prompt: text })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      addMessage("Terjadi error pada server", "bot");
+      return;
+    }
+
+    addMessage(data.reply, "bot");
+
+    if (data.suggestions) {
+      addSuggestions(data.suggestions);
+    }
+
+  } catch (err) {
+    addMessage("Tidak bisa terhubung ke server", "bot");
+  }
+}
+</script>
+
+</body>
+</html>

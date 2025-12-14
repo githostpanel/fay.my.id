@@ -1,0 +1,418 @@
+/**
+ * TODO:
+ * Buatlah variabel firstName, lastName, age, isMarried dengan ketentuan:
+ *  - firstName: bertipe data string, dengan nilai nama depan Anda.
+ *  - lastName: bertipe data string, dengan nilai nama belakang Anda.
+ *  - age: bertipe data number, dengan nilai umur Anda.
+ *  - isMarried: bertipe data boolean, dengan bebas Anda tentukan.
+ */
+
+// TODO
+
+/**
+ * Jangan hapus kode di bawah ini
+ */
+
+const firstName="Achmad";
+const lastName="Ripai";
+const age=32;
+const isMarried=false;
+console.log(`firstName: ${firstName}, lastName: ${lastName}, age: ${age}, isMarried: ${isMarried}`)
+module.exports = {
+  firstName, lastName, age, isMarried,
+};
+
+
+
+// TODO: buatlah variabel (konstan) bernama `currency` dan isi dengan nilai "IDR".
+
+
+// TODO: buatlah variabel bernama `value` dan isi dengan nilai 10000.
+
+
+// TODO: tambahkan nilai di dalam variabel `value` sebesar 5000.
+
+
+/**
+ * TODO: buatlah variabel (konstan) bernama `money`,
+ * isi dengan penambahan string dari nilai `currency` + " " + `value`.
+ */
+
+const currency = "IDR";
+let value = 10000;
+value += 5000;
+const money = currency + " " + value; 
+
+
+/**
+ * TODO:
+ * 1. Buatlah fungsi bernama minimal dengan ketentuan berikut:
+ *    - Menerima dua buah argumen number, a dan b.
+ *    - Mengembalikan nilai terkecil antara a atau b.
+ *    - Bila nilai keduanya sama, maka kembalikan dengan nilai a
+ *
+ *    contoh:
+ *    minimal(1, 4) // 1
+ *    minimal(3, 2) // 2
+ *    minimal(3, 3) // 3
+ *
+ * 2. Buatlah fungsi bernama power dengan ketentuan berikut:
+ *    - Menerima dua buah argumen number, a dan b.
+ *    - Mengembalikan nilai dari hasil perkalian a sebanyak b (fungsi kuadrat).
+ *
+ *    contoh:
+ *    power(7, 3) // 343
+ *    power(3, 3) // 27
+ *    power(4, 0.5) // 2
+ */
+
+
+// TODO
+const minimal = (a,b) =>{
+	if(a<b){
+      return a;
+    }else if(a==b){
+     return a;
+    }else{
+     return b; 
+    }
+}
+console.log(minimal(1, 4)) // 1
+console.log(minimal(3, 2)) // 2
+console.log(minimal(3, 3)) // 3
+
+const power = (a,b) => a**b; 
+
+console.log(power(7, 3)) // 343
+console.log(power(3, 3)) // 27
+console.log(power(4, 0.5)) // 2
+
+/**
+ * Jangan hapus kode di bawah ini
+ */
+
+module.exports = { minimal, power };
+
+
+
+
+/**
+ * TODO
+ * 1. Buatlah variabel dengan nama restaurant yang bertipe object dengan ketentuan berikut:
+ *    - Memiliki properti bernama "name"
+ *       - Bertipe data string
+ *       - Bernilai apa pun, asalkan tidak string kosong atau null.
+ *    - Memiliki properti bernama "city"
+ *       - Bertipe data string
+ *       - Bernilai apa pun, asalkan tidak string kosong atau null.
+ *    - Memiliki properti "favorite drink"
+ *       - Bertipe data string
+ *       - Bernilai apa pun, asalkan tidak string kosong atau null.
+ *    - Memiliki properti "favorite food"
+ *       - Bertipe data string
+ *       - Bernilai apa pun, asalkan tidak string kosong atau null.
+ *    - Memiliki properti "isVegan"
+ *       - Bertipe data boolean
+ *       - Bernilai boolean apa pun.
+ *
+ * 2. Buatlah variabel bernama name.
+ *    Kemudian isi dengan nilai name dari properti object restaurant
+ * 3. Buatlah variabel bernama favoriteDrink.
+ *    Kemudian isi dengan nilai "favorite drink" dari properti object restaurant
+ */
+
+
+// TODO
+
+const restaurant = {
+	name:"Achmad Ripai",
+  	city:"Bogor",
+  	"favorite drink":"ice teh",
+  	"favorite food":"sea food",
+  	"isVegan":false
+}
+
+const {name} = restaurant;
+
+const {'favorite drink': favoriteDrink } = restaurant;
+
+console.log(name);
+console.log(favoriteDrink);
+/**
+ * Jangan hapus kode di bawah ini
+ */
+module.exports = { restaurant, name, favoriteDrink };
+
+
+/**
+ * Buatlah logika if untuk mengevaluasi nilai score dengan ketentuan:
+ *  1. Jika score bernilai 90 atau lebih
+ *      - Isi variabel result dengan nilai: 'Selamat! Anda mendapatkan nilai A.'
+ *  2. Jika score bernilai 80 hingga 89
+ *      - Isi variabel result dengan nilai: 'Anda mendapatkan nilai B.'
+ *  3. Jika score bernilai 70 hingga 79
+ *      - Isi variabel result dengan nilai: 'Anda mendapatkan nilai C.'
+ *  4. Jika score bernilai 60 hingga 69:
+ *      - Isi variabel result dengan nilai: 'Anda mendapatkan nilai D.'
+ *  5. Jika score bernilai di bawah 60:
+ *      - Isi variabel result dengan nilai: 'Anda mendapatkan nilai E.'
+ *
+ *
+ *  Note: - Mohon untuk tidak menghapus kode yang sudah ada sebelumnya.
+ *        - Anda tidak perlu membuat variabel result dan score secara manual.
+ *          Gunakan variabel yang sudah disediakan.
+ *
+ */
+
+function scoreChecker(score) {
+  let result;
+if (score >= 90) {
+	result = 'Selamat! Anda mendapatkan nilai A.';
+} else if (score >=80) {
+    result = 'Anda mendapatkan nilai B.';
+} else if (score >=70) {
+    result = 'Anda mendapatkan nilai C.';
+} else if (score >=60){
+    result = 'Anda mendapatkan nilai D.';
+} else {
+    result = 'Anda mendapatkan nilai E.';
+}
+  // TODO
+
+
+
+  // Jangan hapus kode ini
+  return result;
+}
+console.log(scoreChecker(100));
+/**
+ * Jangan hapus kode di bawah ini
+ */
+module.exports = scoreChecker;
+
+
+
+/**
+ * TODO:
+ * 1. Buatlah class bernama Animal dengan ketentuan:
+ *    - Memiliki properti:
+ *      - name: string
+ *      - age: int
+ *      - isMammal: boolean
+ *    - Memiliki constructor untuk menginisialisasi properti:
+ *      - name
+ *      - age
+ *      - isMammal
+ * 2. Buatlah class bernama Rabbit dengan ketentuan:
+ *    - Merupakan turunan dari class Animal
+ *    - Memiliki method:
+ *      - eat yang mengembalikan nilai string `${this.name} sedang makan!`
+ *    - Ketika diinstansiasi, properti isMammal harus bernilai true
+ * 3. Buatlah class bernama Eagle dengan ketentuan:
+ *    - Merupakan turunan dari class Animal
+ *    - Memiliki method:
+ *      - fly yang mengembalikan nilai string `${this.name} sedang terbang!`
+ *    - Ketika diinstansiasi, properti isMammal harus bernilai false
+ * 4. Buatlah instance dari class Rabbit bernama "myRabbit" dengan ketentuan:
+ *    - properti name bernilai: "Labi"
+ *    - properti age bernilai: 2
+ * 5. Buatlah instance dari class Eagle bernama "myEagle" dengan ketentuan:
+ *    - properti name bernilai: "Elo"
+ *    - properti age bernilai: 4
+ */
+
+
+// TODO
+
+class Animal {
+  constructor(name, age, isMammal) {
+    this.name = name;
+
+    this.age = age;
+
+    this.isMammal = isMammal;
+  }
+}
+
+class Rabbit extends Animal {
+  constructor(name, age, isMammal) {
+    super(name, age, true);
+  }
+
+  eat() {
+    return `${this.name} sedang makan!`;
+  }
+}
+
+class Eagle extends Animal {
+  constructor(name, age, isMammal) {
+    super(name, age, false);
+  }
+
+  fly() {
+    return `${this.name} sedang terbang!`;
+  }
+}
+
+const myRabbit = new Rabbit("Labi", 2);
+
+myRabbit.eat();
+
+console.log(myRabbit.eat());
+
+const myEagle = new Eagle("Elo", 4);
+
+myEagle.fly();
+
+console.log(myEagle.fly());
+
+/**
+ * Jangan hapus kode di bawah ini
+ */
+
+module.exports = {
+  Animal, Rabbit, Eagle, myRabbit, myEagle,
+};
+
+
+/**
+ * TODO:
+ * Buatlah variabel greatAuthors yang merupakan array
+ * berdasarkan hasil filter() dan map() dari books:
+ *   - Gunakan fungsi filter untuk mengembalikan nilai item books
+ *     yang hanya memiliki nilai sales lebih dari 1000000.
+ *   - Gunakan fungsi map pada books yang sudah ter-filter,
+ *     untuk mengembalikan nilai string dengan format:
+ *     - `${author} adalah penulis buku ${title} yang sangat hebat!`
+ *
+ * Catatan: Jangan ubah nilai atau struktur dari books
+ */
+
+const books = [
+  { title: 'The Da Vinci Code', author: 'Dan Brown', sales: 5094805 },
+  { title: 'The Ghost', author: 'Robert Harris', sales: 807311 },
+  { title: 'White Teeth', author: 'Zadie Smith', sales: 815586 },
+  { title: 'Fifty Shades of Grey', author: 'E. L. James', sales: 3758936 },
+  { title: 'Jamie\'s Italy', author: 'Jamie Oliver', sales: 906968 },
+  { title: 'I Can Make You Thin', author: 'Paul McKenna', sales: 905086 },
+  { title: 'Harry Potter and the Deathly Hallows', author: 'J.K Rowling', sales: 4475152 },
+];
+
+// TODO
+const greatAuthors = books.filter((book) => book.sales > 1000000).map((data) => { return `${data.author} adalah penulis buku ${data.title} yang sangat hebat!` })
+
+console.log(greatAuthors);
+
+/**
+ * Jangan hapus kode di bawah ini
+ */
+
+module.exports = { books, greatAuthors };
+
+
+
+/**
+ * Ini adalah program untuk mendapatkan nama user dari internet.
+ * Terdapat dua fungsi yang sudah dibuat, berikut penjelasanya:
+ *   - fetchingUserFromInternet:
+ *     - fungsi ini digunakan untuk mendapatkan data user seolah-olah dari internet.
+ *     - fungsi ini menerima dua argumen yakni callback, dan isOffline.
+ *     - Argumen callback membawa dua nilai yakni error dan user:
+ *       - error: NetworkError akan dibawa oleh callback bila isOffline bernilai true.
+ *       - user: data user akan dibawa oleh callback bila isOffline bernilai false.
+ *   - gettingUserName:
+ *      - fungsi ini memanggil fungsi fetchingUserFromInternet dengan nilai isOffline: false untuk mendapatkan data user name dari internet.
+ *      - fungsi ini harus mengembalikan nilai user.name, namun sulit karena menggunakan pola callback.
+ *      - Maka dari itu, ubahlah fetchingUserFromInternet dari callback menjadi promise
+ *      - Dengan begitu, Anda bisa memanfaatkan .then atau async/await untuk mendapatkan user.name.
+ *
+ * TODO: 1
+ * - Ubahlah fungsi fetchingUserFromInternet dengan memanfaatkan Promise. Anda bisa menghapus implementasi callback.
+ *
+ * TODO: 2
+ * - Ubahlah cara mengonsumsi fungsi fetchingUserFromInternet dari callback ke Promise.
+ * - Tips:
+ *   - Agar penulisan kode lebih bersih dan mudah dibaca, coba manfaatkan async/await
+ *
+ *
+ * Notes:
+ * - Jangan ubah struktur atau nilai dari objek user yang dibawa oleh callback sebelumnya.
+ * - Tetap gunakan NetworkError untuk membawa nilai error pada Promise
+ */
+
+class NetworkError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+
+// TODO: 1
+const fetchingUserFromInternet = (isOffline) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (isOffline) {
+        reject(new NetworkError('Gagal mendapatkan data dari internet'), null);
+      }
+      resolve({ name: 'John', age: 18 });
+    }, 500);
+  })
+  
+};
+
+
+// TODO: 2
+const gettingUserName = () => {
+  return fetchingUserFromInternet(false)
+    .then((user) => {
+      return user.name
+    })
+    .catch((rejectedReason) => {
+      return rejectedReason
+    })
+};
+
+/**
+ * Abaikan kode di bawah ini
+ */
+
+module.exports = { fetchingUserFromInternet, gettingUserName, NetworkError };
+
+
+const API = {
+  fetch(delay, simulateError = false) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (simulateError) {
+          return reject(new Error(`Error from delay ${delay}`));
+        }
+
+        return resolve(`Data from delay ${delay}`);
+      }, delay);
+    });
+  }
+};
+
+const sampleErrorData = [
+  {
+    delay: 100,
+    simulateError: false,
+  },
+  {
+    delay: 50,
+    simulateError: true,
+  },
+];
+
+const sampleSuccessData = [
+  {
+    delay: 100,
+    simulateError: false,
+  },
+  {
+    delay: 50,
+    simulateError: false,
+  },
+];
+
+export { API, sampleErrorData, sampleSuccessData };

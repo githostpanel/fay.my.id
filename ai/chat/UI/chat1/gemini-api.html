@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RizqiAI - Asisten Cerdas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js untuk Markdown Formatting -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+
+        /* Markdown Styles inside Chat */
+        .prose pre {
+            background-color: #0f172a;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            border: 1px solid #334155;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .prose code {
+            background-color: #334155;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+            color: #e2e8f0;
+            font-family: monospace;
+        }
+        .prose pre code {
+            background-color: transparent;
+            padding: 0;
+            color: #38bdf8;
+            font-size: 0.9em;
+        }
+        .prose p {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .prose ol {
+            list-style-type: decimal;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .prose strong {
+            color: #f8fafc;
+            font-weight: 600;
+        }
+
+        /* Message Bubbles */
+        .user-message {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border-bottom-right-radius: 2px;
+            margin-left: auto; /* Force Right */
+        }
+        .bot-message {
+            background-color: #1e293b; /* Slate 800 */
+            border: 1px solid #334155;
+            color: #f1f5f9;
+            border-bottom-left-radius: 2px;
+            margin-right: auto; /* Force Left */
+        }
+
+        /* Loading Dots Animation */
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out both;
+            margin: 0 2px;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Toast Notification */
+        #notification {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #10b981;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 60;
+            left: 50%;
+            top: 20px; /* Changed to top */
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-size: 0.9rem;
+        }
+        #notification.show {
+            visibility: visible;
+            opacity: 1;
+            top: 40px;
+        }
+
+        /* Active History Item Styling */
+        .history-item.active {
+            background-color: #1e293b;
+            border-left: 3px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col md:flex-row overflow-hidden bg-slate-950">
+
+    <!-- Mobile Header overlay (Only visible on mobile) -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-slate-900 border-r border-slate-800 flex flex-col z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl md:shadow-none">
+        <!-- Logo Area -->
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight text-white">RizqiAI</h1>
+            </div>
+            <!-- Close button for mobile -->
+            <button class="md:hidden text-slate-400 hover:text-white" onclick="toggleSidebar()">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+
+        <!-- New Chat Button -->
+        <div class="p-4 pb-2">
+            <button onclick="startNewChat()" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-all shadow-lg shadow-blue-900/20 border border-blue-500 group">
+                <i class="fa-solid fa-plus transition-transform group-hover:rotate-90"></i>
+                <span>New Chat</span>
+            </button>
+        </div>
+
+        <!-- History List Label -->
+        <div class="px-6 py-2">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">History Chat</p>
+        </div>
+
+        <!-- History Container -->
+        <div id="history-container" class="flex-1 overflow-y-auto px-2 space-y-1 pb-4">
+            <!-- History items will be injected here via JS -->
+            <div class="text-center mt-10 text-slate-600 text-sm italic empty-state">
+                Belum ada riwayat
+            </div>
+        </div>
+
+        <!-- Settings / Bottom Menu -->
+        <div class="p-3 border-t border-slate-800 bg-slate-900/50">
+            <button onclick="clearAllHistory()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                <i class="fa-solid fa-trash-can"></i>
+                Hapus Semua History
+            </button>
+            <button onclick="toggleSettings()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors mt-1">
+                <i class="fa-solid fa-sliders"></i>
+                Pengaturan
+            </button>
+            
+            <!-- User Profile Mini -->
+            <div class="mt-3 pt-3 border-t border-slate-800 flex items-center gap-3 px-2">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">
+                    U
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white truncate">User Tamu</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full relative min-w-0 md:pl-72 transition-all">
+        
+        <!-- Header Mobile / Top Bar -->
+        <header class="h-14 border-b border-slate-800 flex items-center justify-between px-4 bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
+            <div class="flex items-center gap-3">
+                <button class="md:hidden text-slate-400 hover:text-white" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                <span id="current-chat-title" class="font-medium text-slate-200 truncate max-w-[200px] md:max-w-md">Chat Baru</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div id="model-badge" class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs text-slate-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-blue-500"></i>
+                    <span id="model-name-display">Gemini 2.5 Flash</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Chat Area (Scrollable) -->
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scroll-smooth">
+            <!-- Welcome / Empty State -->
+            <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fade-in opacity-100">
+                <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-2 shadow-xl border border-slate-700">
+                    <i class="fa-solid fa-robot text-3xl text-blue-500"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Apa yang bisa saya bantu?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl px-4">
+                    <button onclick="setInput('Buatkan kerangka artikel tentang AI')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl text-left text-sm text-slate-300 transition-all hover:border-slate-600">
+                        "Buatkan kerangka artikel tentang AI"
+                    </button>
+                    <button onclick="setInput('Jelaskan konsep Quantum Computing')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl text-left text-sm text-slate-300 transition-all hover:border-slate-600">
+                        "Jelaskan konsep Quantum Computing"
+                    </button>
+                    <button onclick="setInput('Buatkan kode HTML tombol sederhana')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl text-left text-sm text-slate-300 transition-all hover:border-slate-600">
+                        "Buatkan kode HTML tombol sederhana"
+                    </button>
+                    <button onclick="setInput('Berikan ide kado ulang tahun unik')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl text-left text-sm text-slate-300 transition-all hover:border-slate-600">
+                        "Berikan ide kado ulang tahun unik"
+                    </button>
+                </div>
+            </div>
+            <!-- Messages will appear here -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 bg-slate-950/90 backdrop-blur border-t border-slate-800">
+            <div class="max-w-3xl mx-auto relative">
+                <div class="relative flex items-end gap-2 bg-slate-800/80 p-2 rounded-xl border border-slate-700 focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/50 transition-all shadow-lg">
+                    <!-- Tombol Lampiran (Simulasi Multimodal) -->
+                    <button id="attach-button" onclick="showNotification('Fitur unggah gambar tidak tersedia di demo ini.')" class="p-2.5 text-slate-400 hover:text-white rounded-lg transition-colors flex-shrink-0 mb-0.5" title="Lampirkan File">
+                        <i class="fa-solid fa-paperclip text-sm"></i>
+                    </button>
+                    
+                    <textarea id="user-input" rows="1" class="w-full bg-transparent text-slate-200 text-sm p-3 focus:outline-none resize-none max-h-40" placeholder="Ketik pesan Anda..."></textarea>
+                    <button id="send-button" class="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors flex-shrink-0 mb-0.5 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
+                <p class="text-center text-[10px] text-slate-500 mt-2">RizqiAI menggunakan Gemini API dengan pencarian. Cek kembali informasi penting.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-md shadow-2xl transform scale-95 opacity-0 transition-all duration-200" id="settings-content">
+            <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-white">Pengaturan</h3>
+                <button onclick="toggleSettings()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Model AI</label>
+                    <!-- Opsi Model Diperbarui -->
+                    <select id="model-select" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-1 focus:ring-blue-500 outline-none">
+                        <option value="gemini-2.5-flash-preview-09-2025">Gemini 2.5 Flash (Default)</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro (Simulasi)</option>
+                        <option value="llama-sim">Llama 3 (Simulasi)</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-slate-300">Hapus data lokal saat refresh</span>
+                    <input type="checkbox" id="clear-on-refresh" class="w-4 h-4 rounded bg-slate-800 border-slate-600">
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-800 flex justify-end">
+                <button onclick="saveSettings()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification">Pesan Notifikasi</div>
+
+    <script>
+        // --- State Management ---
+        let chats = JSON.parse(localStorage.getItem('rizqi_chats')) || [];
+        let currentChatId = null;
+        let isGenerating = false;
+
+        // --- API Constants ---
+        const GEMINI_API_KEY = "";
+        const MAX_RETRIES = 5;
+
+        // --- CONSTANTS ---
+        const WELCOME_HTML = `
+            <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center space-y-6 animate-fade-in opacity-100">
+                <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-2 shadow-xl border border-slate-700">
+                    <i class="fa-solid fa-robot text-3xl text-blue-500"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Apa yang bisa saya bantu?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl px-4">
+                    <button onclick="setInput('Buatkan kerangka artikel tentang AI')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl text-left text-sm text-slate-300 transition-all hover:border-slate-600">
+                        "Buatkan kerangka artikel tentang AI"
+                    </button>
+                    <button onclick="setInput('Jelaskan konsep Quantum Computing')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl text-left text-sm text-slate-300 transition-all hover:border-slate-600">
+                        "Jelaskan konsep Quantum Computing"
+                    </button>
+                    <button onclick="setInput('Buatkan kode HTML tombol sederhana')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl text-left text-sm text-slate-300 transition-all hover:border-slate-600">
+                        "Buatkan kode HTML tombol sederhana"
+                    </button>
+                    <button onclick="setInput('Berikan ide kado ulang tahun unik')" class="p-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl text-left text-sm text-slate-300 transition-all hover:border-slate-600">
+                        "Berikan ide kado ulang tahun unik"
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // --- Utility Functions ---
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function updateModelDisplay() {
+            const select = document.getElementById('model-select');
+            const display = document.getElementById('model-name-display');
+            const selectedText = select.options[select.selectedIndex].text.replace(/\s\(Simulasi\)/, '');
+            if (display) display.textContent = selectedText;
+        }
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateModelDisplay();
+            renderHistory();
+            if (chats.length > 0) {
+                loadChat(chats[0].id);
+            } else {
+                startNewChat(false); // Create initial state but don't save yet
+            }
+        });
+
+        // --- Core Functions (Chat History) ---
+
+        function startNewChat(clearView = true) {
+            currentChatId = generateId();
+            if (clearView) {
+                const container = document.getElementById('chat-container');
+                container.innerHTML = WELCOME_HTML; 
+                
+                document.getElementById('current-chat-title').textContent = 'Chat Baru';
+                
+                document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+                
+                if(window.innerWidth < 768) {
+                    document.getElementById('sidebar').classList.add('-translate-x-full');
+                    document.getElementById('mobile-overlay').classList.add('hidden');
+                }
+            }
+        }
+
+        function saveChatToHistory(text, isUser) {
+            let chat = chats.find(c => c.id === currentChatId);
+            
+            if (!chat) {
+                // First message
+                chat = {
+                    id: currentChatId,
+                    title: isUser ? (text.length > 25 ? text.substring(0, 25) + '...' : text) : 'Chat Baru',
+                    messages: [],
+                    timestamp: Date.now()
+                };
+                chats.unshift(chat); 
+            } else {
+                chat.timestamp = Date.now();
+                chats = chats.filter(c => c.id !== currentChatId);
+                chats.unshift(chat);
+            }
+
+            chat.messages.push({
+                text: text,
+                isUser: isUser,
+                timestamp: Date.now()
+            });
+
+            localStorage.setItem('rizqi_chats', JSON.stringify(chats));
+            renderHistory();
+            
+            if (chat.messages.length === 1) {
+                document.getElementById('current-chat-title').textContent = chat.title;
+            }
+        }
+
+        function loadChat(id) {
+            const chat = chats.find(c => c.id === id);
+            if (!chat) return;
+
+            currentChatId = id;
+            document.getElementById('current-chat-title').textContent = chat.title;
+            
+            // Render Messages
+            const container = document.getElementById('chat-container');
+            container.innerHTML = ''; // Clear chat area
+            
+            chat.messages.forEach(msg => {
+                renderMessageToDOM(msg.text, msg.isUser, false);
+            });
+
+            renderHistory();
+            container.scrollTo({ top: container.scrollHeight, behavior: 'auto' });
+            
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+                document.getElementById('mobile-overlay').classList.add('hidden');
+            }
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+            if (chats.length === 0) {
+                container.innerHTML = '<div class="text-center mt-10 text-slate-600 text-sm italic">Belum ada riwayat</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            chats.forEach(chat => {
+                const item = document.createElement('div');
+                const isActive = chat.id === currentChatId ? 'active' : '';
+                item.className = `history-item ${isActive} group flex items-center gap-3 px-3 py-3 mx-2 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors text-slate-300`;
+                item.onclick = () => loadChat(chat.id);
+                
+                item.innerHTML = `
+                    <i class="fa-regular fa-message text-slate-500 group-hover:text-white text-xs"></i>
+                    <div class="flex-1 overflow-hidden">
+                        <p class="text-sm truncate ${isActive ? 'text-white font-medium' : ''}">${chat.title}</p>
+                    </div>
+                    ${isActive ? '' : `
+                    <button onclick="event.stopPropagation(); deleteChat('${chat.id}')" class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 p-1">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>`}
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function deleteChat(id) {
+            // Using custom UI for confirmation is better, but using browser confirm here as a quick solution
+            if(!confirm('Hapus chat ini?')) return; 
+            chats = chats.filter(c => c.id !== id);
+            localStorage.setItem('rizqi_chats', JSON.stringify(chats));
+            
+            if (currentChatId === id) {
+                startNewChat();
+            } else {
+                renderHistory();
+            }
+        }
+
+        function clearAllHistory() {
+            if(!confirm('Yakin hapus semua riwayat?')) return;
+            chats = [];
+            localStorage.removeItem('rizqi_chats');
+            startNewChat();
+            renderHistory();
+            showNotification('Riwayat dihapus');
+        }
+
+        // --- Typing and Rendering Logic ---
+
+        function typingEffect(element, text, delayMs = 20) {
+            return new Promise(resolve => {
+                let i = 0;
+                
+                // Clear the target element first
+                element.innerHTML = '';
+
+                const interval = setInterval(() => {
+                    if (i < text.length) {
+                        element.textContent += text.charAt(i);
+                        // Scroll container smoothy as text is added
+                        const container = document.getElementById('chat-container');
+                        if (container.scrollHeight - container.scrollTop < container.clientHeight + 100) {
+                            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+                        }
+                        i++;
+                    } else {
+                        clearInterval(interval);
+                        // Once finished, render the final parsed Markdown content
+                        element.innerHTML = marked.parse(text);
+                        resolve();
+                    }
+                }, delayMs);
+            });
+        }
+
+        function renderMessageToDOM(text, isUser) {
+            const container = document.getElementById('chat-container');
+            
+            const welcome = document.getElementById('welcome-screen');
+            if (welcome) {
+                welcome.remove(); 
+            }
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex w-full ${isUser ? 'justify-end' : 'justify-start'} mb-6 animate-fade-in`;
+            
+            if (isUser) {
+                // User Bubble
+                msgDiv.innerHTML = `
+                    <div class="user-message max-w-[85%] md:max-w-[70%] rounded-2xl rounded-br-none p-4 shadow-md text-sm md:text-base leading-relaxed">
+                        ${text.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+            } else {
+                // Bot Bubble + Icon
+                msgDiv.innerHTML = `
+                    <div class="flex items-start gap-3 max-w-[90%] md:max-w-[80%]">
+                        <div class="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 flex items-center justify-center mt-1 border border-blue-500/30">
+                            <i class="fa-solid fa-robot text-white text-xs"></i>
+                        </div>
+                        <div class="bot-message rounded-2xl rounded-bl-none p-4 shadow-md overflow-hidden min-w-0">
+                            <div class="prose prose-invert prose-sm max-w-none">
+                                ${marked.parse(text)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.appendChild(msgDiv);
+            container.scrollTo({ top: container.scrollHeight, behavior: 'auto' });
+        }
+
+
+        async function handleSend() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            if (!message || isGenerating) return;
+
+            isGenerating = true;
+            input.value = '';
+            resizeTextarea(input);
+
+            // 1. Render User Message (from history)
+            renderMessageToDOM(message, true);
+
+            // 2. Prepare Loading and Bot Content Target
+            const container = document.getElementById('chat-container');
+            const loadingId = 'loading-' + Date.now();
+            
+            const botMessageElement = document.createElement('div');
+            botMessageElement.className = 'flex w-full justify-start mb-6 animate-fade-in';
+            botMessageElement.id = loadingId;
+            botMessageElement.innerHTML = `
+                <div class="flex items-start gap-3 max-w-[90%] md:max-w-[80%]">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 flex items-center justify-center mt-1 border border-blue-500/30">
+                        <i class="fa-solid fa-robot text-white text-xs"></i>
+                    </div>
+                    <div class="bot-message rounded-2xl rounded-bl-none p-4 shadow-md">
+                        <div id="typing-target-${loadingId}" class="prose prose-invert prose-sm max-w-none">
+                            <div class="typing-indicator flex items-center h-5 gap-1">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(botMessageElement);
+            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+
+            const typingTarget = document.getElementById(`typing-target-${loadingId}`);
+            
+            // 3. API Call with Gemini Structure (and Retry)
+            try {
+                const selectedModel = document.getElementById('model-select').value;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${GEMINI_API_KEY}`;
+                
+                // Build chat history for context (only previous messages for Gemini)
+                const chat = chats.find(c => c.id === currentChatId);
+                const history = chat ? chat.messages.map(msg => ({
+                    role: msg.isUser ? "user" : "model",
+                    parts: [{ text: msg.text }]
+                })) : [];
+                
+                // Append current user message
+                history.push({ role: "user", parts: [{ text: message }] });
+
+                const payload = {
+                    contents: history,
+                    // Enable Google Search Grounding for real-time information
+                    tools: selectedModel === 'gemini-2.5-flash-preview-09-2025' ? [{ "google_search": {} }] : undefined,
+                    systemInstruction: {
+                        parts: [{ text: "You are RizqiAI, a helpful and knowledgeable assistant. Respond concisely in Indonesian and use Markdown formatting. If using Google Search, include sources at the end." }]
+                    }
+                };
+
+                let responseText = "";
+                let sources = [];
+
+                if (selectedModel.includes('sim')) {
+                    await delay(1500); // Simulate API call delay
+                    responseText = `Ini adalah respons simulasi dari model **${selectedModel.toUpperCase()}**. \n\nFitur ini berfungsi untuk demonstrasi UI. Untuk menggunakan model asli, Anda perlu menyediakan kunci API yang valid.`;
+                } else {
+                    // Actual API call with retry mechanism (Exponential Backoff)
+                    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+                        try {
+                            const res = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+
+                            if (!res.ok) {
+                                if (res.status === 429 && attempt < MAX_RETRIES - 1) {
+                                    const delayTime = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                                    await delay(delayTime);
+                                    continue; // Retry
+                                }
+                                throw new Error(`API Error: ${res.status}`);
+                            }
+
+                            const result = await res.json();
+                            const candidate = result.candidates?.[0];
+
+                            if (candidate && candidate.content?.parts?.[0]?.text) {
+                                responseText = candidate.content.parts[0].text;
+                                
+                                // Extract Grounding Sources
+                                const groundingMetadata = candidate.groundingMetadata;
+                                if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                                    sources = groundingMetadata.groundingAttributions
+                                        .map(attribution => ({
+                                            uri: attribution.web?.uri,
+                                            title: attribution.web?.title,
+                                        }))
+                                        .filter(source => source.uri && source.title);
+                                }
+                            } else {
+                                responseText = "Maaf, respons AI tidak dapat diproses. Coba lagi.";
+                            }
+                            break; // Success, exit retry loop
+
+                        } catch (e) {
+                            if (attempt === MAX_RETRIES - 1) throw e;
+                            const delayTime = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                            await delay(delayTime);
+                        }
+                    }
+                }
+        
+                // 4. Start Typing Effect
+                
+                // Construct final response including sources
+                let finalResponse = responseText;
+                if (sources.length > 0) {
+                    // Only show unique sources, limit to 3
+                    const uniqueSources = Array.from(new Map(sources.map(s => [s.uri, s])).values()).slice(0, 3);
+                    
+                    finalResponse += "\n\n---\n**Sumber informasi:**\n";
+                    uniqueSources.forEach((s, index) => {
+                        finalResponse += `\n${index + 1}. [${s.title}](${s.uri})`;
+                    });
+                }
+                
+                await typingEffect(typingTarget, finalResponse);
+
+                // 5. Save the final message to history
+                saveChatToHistory(finalResponse, false);
+                
+            } catch (err) {
+                typingTarget.innerHTML = 'Maaf, terjadi kesalahan teknis atau batas waktu API terlampaui. Coba lagi.';
+                showNotification('Gagal terhubung ke AI');
+            } finally {
+                isGenerating = false;
+                // Remove the loading class/id if needed, but here we just leave the content
+            }
+        }
+
+        // --- UI Interactions ---
+
+        function setInput(text) {
+            const input = document.getElementById('user-input');
+            input.value = text;
+            input.focus();
+            resizeTextarea(input);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function toggleSettings() {
+            const modal = document.getElementById('settings-modal');
+            const content = document.getElementById('settings-content');
+            
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            } else {
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 200);
+            }
+        }
+
+        function saveSettings() {
+            toggleSettings();
+            updateModelDisplay();
+            showNotification("Pengaturan disimpan");
+        }
+
+        function showNotification(msg) {
+            const notif = document.getElementById('notification');
+            notif.textContent = msg;
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+
+        function resizeTextarea(el) {
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+            if(el.value === '') el.style.height = 'auto';
+        }
+
+        // --- Event Listeners ---
+
+        document.getElementById('send-button').addEventListener('click', handleSend);
+        
+        document.getElementById('user-input').addEventListener('input', function() {
+            resizeTextarea(this);
+        });
+
+        document.getElementById('user-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+    </script>
+</body>
+</html>

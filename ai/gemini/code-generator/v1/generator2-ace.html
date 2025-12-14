@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Kode AI Gemini</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+        /* Custom styles for the Ace Editor container */
+        #editor {
+            background-color: #0d1117;
+            border-radius: 0.5rem;
+            border: 1px solid #334155;
+            padding: 1rem;
+            width: 100%;
+            height: 400px;
+        }
+        /* Custom styles for iframe to fill space */
+        .preview-iframe-container {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+    <!-- Ace Editor CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-4xl space-y-8">
+        <div class="text-center space-y-2">
+            <h1 class="text-4xl font-extrabold text-blue-400">Gemini Code Generator</h1>
+            <p class="text-gray-300">Hasilkan kode dalam berbagai bahasa pemrograman dengan AI.</p>
+        </div>
+
+        <!-- Formulir Input -->
+        <div class="space-y-4">
+            <div>
+                <label for="prompt" class="block text-gray-400 font-medium mb-1">Prompt (Contoh: "Buat fungsi Python untuk menghitung faktorial")</label>
+                <textarea id="prompt" rows="4" class="w-full p-3 rounded-lg bg-slate-700 text-gray-50 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"></textarea>
+            </div>
+            <div>
+                <label for="language" class="block text-gray-400 font-medium mb-1">Bahasa Pemrograman</label>
+                <select id="language" class="w-full p-3 rounded-lg bg-slate-700 text-gray-50 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+                    <option value="HTML">HTML</option>
+                    <option value="Python">Python</option>
+                    <option value="JavaScript">JavaScript</option>
+                    <option value="Java">Java</option>
+                    <option value="C++">C++</option>
+                    <option value="Go">Go</option>
+                    <option value="Ruby">Ruby</option>
+                    <option value="PHP">PHP</option>
+                    <option value="Swift">Swift</option>
+                    <option value="Kotlin">Kotlin</option>
+                    <option value="TypeScript">TypeScript</option>
+                </select>
+            </div>
+            <button id="generateBtn" class="w-full py-3 px-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 shadow-lg">
+                Hasilkan Kode
+            </button>
+        </div>
+
+        <!-- Area Hasil -->
+        <div id="results" class="hidden">
+            <h2 class="text-xl font-bold mb-2 text-gray-200">Kode yang Dihasilkan:</h2>
+            <div class="bg-slate-900 rounded-lg p-4">
+                <div class="flex justify-end gap-2 mb-4">
+                    <button id="runBtn" class="flex items-center gap-1 py-1 px-3 bg-slate-700 text-gray-400 rounded-full hover:bg-slate-600 transition-colors duration-300" title="Jalankan Kode (Hanya untuk HTML)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        Jalankan
+                    </button>
+                    <button id="downloadBtn" class="flex items-center gap-1 py-1 px-3 bg-slate-700 text-gray-400 rounded-full hover:bg-slate-600 transition-colors duration-300" title="Unduh Kode">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.52 7.152a.75.75 0 011.02.24L16 10.51l1.46-3.118a.75.75 0 011.02-.24l1 1a.75.75 0 010 1.06L17.06 13a.75.75 0 01-1.06 0L14 11.94l-2.94 2.94a.75.75 0 01-1.06 0L8 11.94l-3.06 3.06a.75.75 0 01-1.06 0L2 13.06a.75.75 0 010-1.06L5.94 8l-2.94-2.94a.75.75 0 010-1.06L3.94 3a.75.75 0 011.06 0L8 6.94l2.94-2.94a.75.75 0 011.06 0L14 6.94l2.94-2.94a.75.75 0 011.06 0L19.06 5z" />
+                            <path d="M10 2a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15z" />
+                        </svg>
+                        Unduh
+                    </button>
+                    <button id="copyBtn" class="flex items-center gap-1 py-1 px-3 bg-slate-700 text-gray-400 rounded-full hover:bg-slate-600 transition-colors duration-300" title="Salin Kode">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
+                            <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z" />
+                        </svg>
+                        Salin
+                    </button>
+                </div>
+                <div id="editor"></div>
+            </div>
+        </div>
+        
+        <!-- Preview -->
+        <div id="previewContainer" class="hidden">
+            <h2 class="text-xl font-bold mb-2 text-gray-200">Pratinjau Kode:</h2>
+            <div class="preview-iframe-container">
+                <iframe id="previewFrame" class="preview-iframe"></iframe>
+            </div>
+        </div>
+
+        <!-- Loading dan Modal Pesan -->
+        <div id="loading" class="hidden text-center text-blue-400 font-medium">
+            <div class="flex items-center justify-center space-x-2">
+                <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Sedang menghasilkan kode...</span>
+            </div>
+        </div>
+
+        <div id="messageModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center p-4">
+            <div class="bg-slate-800 p-6 rounded-lg shadow-xl max-w-sm w-full space-y-4 text-center">
+                <h3 id="modalTitle" class="text-xl font-bold text-gray-100"></h3>
+                <p id="modalMessage" class="text-gray-300"></p>
+                <button id="closeModalBtn" class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const promptInput = document.getElementById('prompt');
+            const languageSelect = document.getElementById('language');
+            const generateBtn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+            const copyBtn = document.getElementById('copyBtn');
+            const runBtn = document.getElementById('runBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const messageModal = document.getElementById('messageModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const previewContainer = document.getElementById('previewContainer');
+            const previewFrame = document.getElementById('previewFrame');
+
+            // Initialize Ace Editor
+            const editor = ace.edit("editor");
+            editor.setTheme("ace/theme/tomorrow_night_eighties"); // A dark, clean theme
+            editor.getSession().setMode("ace/mode/javascript"); // Default mode
+
+            const apiKey = ""; 
+            const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + apiKey;
+            let chatHistory = [];
+
+            function showMessageModal(title, message) {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                messageModal.classList.remove('hidden');
+            }
+
+            closeModalBtn.addEventListener('click', () => {
+                messageModal.classList.add('hidden');
+            });
+
+            // Set Ace Editor mode based on language selection
+            languageSelect.addEventListener('change', () => {
+                const language = languageSelect.value.toLowerCase();
+                let mode;
+                switch (language) {
+                    case 'python': mode = 'python'; break;
+                    case 'javascript': mode = 'javascript'; break;
+                    case 'java': mode = 'java'; break;
+                    case 'c++': mode = 'c_cpp'; break;
+                    case 'go': mode = 'golang'; break;
+                    case 'ruby': mode = 'ruby'; break;
+                    case 'php': mode = 'php'; break;
+                    case 'swift': mode = 'swift'; break;
+                    case 'kotlin': mode = 'kotlin'; break;
+                    case 'typescript': mode = 'typescript'; break;
+                    case 'html': mode = 'html'; break;
+                    default: mode = 'text'; break;
+                }
+                editor.getSession().setMode("ace/mode/" + mode);
+            });
+
+            generateBtn.addEventListener('click', async () => {
+                const promptText = promptInput.value.trim();
+                const language = languageSelect.value;
+
+                if (!promptText) {
+                    showMessageModal("Peringatan", "Silakan masukkan deskripsi prompt.");
+                    return;
+                }
+
+                resultsDiv.classList.add('hidden');
+                previewContainer.classList.add('hidden');
+                loading.classList.remove('hidden');
+                editor.setValue('');
+                generateBtn.disabled = true;
+
+                chatHistory.push({ role: "user", parts: [{ text: `Hasilkan kode ${language} untuk: ${promptText}. Pastikan untuk hanya menyertakan kode dan komentar, tanpa menggunakan blok kode Markdown atau backtick.` }] });
+
+                const payload = {
+                    contents: chatHistory,
+                };
+
+                const maxRetries = 5;
+                let retryCount = 0;
+                let delay = 1000;
+
+                while (retryCount < maxRetries) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            if (response.status === 429) {
+                                throw new Error('Rate limit exceeded. Retrying...');
+                            }
+                            throw new Error('Network response was not ok');
+                        }
+
+                        const result = await response.json();
+                        let generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                        if (generatedText) {
+                            generatedText = generatedText.replace(/```[a-z]*\n|```/g, '').trim();
+
+                            chatHistory.pop();
+                            chatHistory.push({ role: "model", parts: [{ text: generatedText }] });
+
+                            editor.setValue(generatedText, -1);
+                            
+                            resultsDiv.classList.remove('hidden');
+                        } else {
+                            showMessageModal("Error", "Tidak ada kode yang dihasilkan. Mohon coba lagi.");
+                        }
+                        break;
+                    } catch (error) {
+                        console.error('Fetch error:', error);
+                        if (error.message.includes('Rate limit exceeded') && retryCount < maxRetries - 1) {
+                            await new Promise(res => setTimeout(res, delay));
+                            delay *= 2;
+                            retryCount++;
+                        } else {
+                            showMessageModal("Error", `Gagal menghasilkan kode: ${error.message}`);
+                            break;
+                        }
+                    }
+                }
+
+                loading.classList.add('hidden');
+                generateBtn.disabled = false;
+            });
+
+            runBtn.addEventListener('click', () => {
+                const code = editor.getValue();
+                const language = languageSelect.value;
+
+                if (language === 'HTML') {
+                    previewFrame.srcdoc = code;
+                    previewContainer.classList.remove('hidden');
+                } else {
+                    showMessageModal("Info", "Fungsi Jalankan hanya tersedia untuk kode HTML.");
+                    previewContainer.classList.add('hidden');
+                }
+            });
+
+            downloadBtn.addEventListener('click', () => {
+                const code = editor.getValue();
+                const language = languageSelect.value.toLowerCase();
+                let fileExtension = '.txt';
+
+                switch (language) {
+                    case 'python': fileExtension = '.py'; break;
+                    case 'javascript': fileExtension = '.js'; break;
+                    case 'java': fileExtension = '.java'; break;
+                    case 'c++': fileExtension = '.cpp'; break;
+                    case 'go': fileExtension = '.go'; break;
+                    case 'ruby': fileExtension = '.rb'; break;
+                    case 'php': fileExtension = '.php'; break;
+                    case 'swift': fileExtension = '.swift'; break;
+                    case 'kotlin': fileExtension = '.kt'; break;
+                    case 'typescript': fileExtension = '.ts'; break;
+                    case 'html': fileExtension = '.html'; break;
+                }
+                const filename = `generated_code${fileExtension}`;
+                const blob = new Blob([code], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showMessageModal("Berhasil!", "Kode berhasil diunduh.");
+            });
+
+            copyBtn.addEventListener('click', () => {
+                const code = editor.getValue();
+                navigator.clipboard.writeText(code).then(() => {
+                    showMessageModal("Berhasil!", "Kode berhasil disalin ke clipboard.");
+                }).catch(err => {
+                    console.error('Gagal menyalin:', err);
+                    showMessageModal("Gagal", "Tidak dapat menyalin kode.");
+                });
+            });
+
+            // Set initial mode
+            languageSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
+</body>
+</html>
