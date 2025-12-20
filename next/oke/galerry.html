@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gallery Foto</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --text: #f4f4f5;
+      --accent: #3b82f6;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .controls input {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: var(--text);
+    }
+    .controls select {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: var(--text);
+    }
+
+    /* Grid Gallery */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: #111;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: transform 0.25s;
+    }
+    .card:hover { transform: scale(1.03); }
+
+    .card img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      height: 160px;
+    }
+    .card p {
+      margin: 0;
+      padding: 0.75rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>📸 Gallery Foto</h1>
+
+  <!-- Filter dan Search -->
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Cari foto...">
+    <select id="categoryFilter">
+      <option value="all">Semua Kategori</option>
+      <option value="nature">Alam</option>
+      <option value="city">Kota</option>
+      <option value="people">Orang</option>
+    </select>
+  </div>
+
+  <!-- Gallery Grid -->
+  <div class="gallery" id="gallery">
+    <div class="card" data-category="nature">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/nature" alt="Nature 1">
+      <p>Hutan Hijau</p>
+    </div>
+    <div class="card" data-category="city">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/city,night" alt="City Night">
+      <p>Kota Malam</p>
+    </div>
+    <div class="card" data-category="people">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/people,portrait" alt="People">
+      <p>Potret Orang</p>
+    </div>
+    <div class="card" data-category="nature">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/mountain" alt="Mountain">
+      <p>Pegunungan</p>
+    </div>
+    <div class="card" data-category="city">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/building" alt="Building">
+      <p>Gedung Tinggi</p>
+    </div>
+    <div class="card" data-category="people">
+      <img src="https://tools.fay.my.id/ai/generator/prompt/smile" alt="Smile">
+      <p>Senyum</p>
+    </div>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const gallery = document.getElementById("gallery");
+    const cards = gallery.querySelectorAll(".card");
+
+    function filterGallery() {
+      const search = searchInput.value.toLowerCase();
+      const category = categoryFilter.value;
+
+      cards.forEach(card => {
+        const text = card.querySelector("p").textContent.toLowerCase();
+        const cardCategory = card.dataset.category;
+
+        const matchesSearch = text.includes(search);
+        const matchesCategory = category === "all" || cardCategory === category;
+
+        if (matchesSearch && matchesCategory) {
+          card.style.display = "";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
+    searchInput.addEventListener("input", filterGallery);
+    categoryFilter.addEventListener("change", filterGallery);
+  </script>
+</body>
+</html>

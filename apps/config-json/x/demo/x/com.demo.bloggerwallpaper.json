@@ -1,0 +1,74 @@
+{
+	"blog": {
+		"blogger_id": "289922328690349169",
+		"api_key": "AIzaSyCF7oxEzYlQbxh9uttR33VUjlfeHCn7uhk,AIzaSyDoLTbDDdES9PUSm5md7groPy77CRMdD0E"
+	},
+	"app": {
+		"version":"1",
+		"status": "1",
+		"display_wallpaper_name": "true",
+		"center_crop_wallpaper": "true",
+		"custom_label_list": "true",
+		"featured_labels": "cute,samurai",
+		"privacy_policy_url": "https://karyamarketing-dev.web.app/privacy-policy.html",
+		"more_apps_url": "https://play.google.com/store/apps/dev?id=5587197465007570513",
+		"redirect_url": ""
+	},
+	"notification": {
+		"fcm_notification_topic": "blogger_wallpaperx_topic",
+		"onesignal_app_id": "896ab86e-a97d-4597-87e6-8de23fecdb33"
+	},
+	"ads": {
+		"ad_status": "1",
+		"ad_type": "admob",
+		"backup_ads": "none",
+		"admob_publisher_id": "ca-app-pub-3940256099942544~3347511713",
+		"admob_banner_unit_id": "ca-app-pub-3940256099942544/6300978111",
+		"admob_interstitial_unit_id": "ca-app-pub-3940256099942544/1033173712",
+		"admob_native_unit_id": "ca-app-pub-3940256099942544/2247696110",
+		"admob_app_open_ad_unit_id": "ca-app-pub-3940256099942544/9257395921",
+		"ad_manager_banner_unit_id": "/6499/example/banner",
+		"ad_manager_interstitial_unit_id": "/6499/example/interstitial",
+		"ad_manager_native_unit_id": "/6499/example/native",
+		"ad_manager_app_open_ad_unit_id": "/6499/example/app-open",
+		"fan_banner_unit_id": "IMG_16_9_APP_INSTALL#1102290040176998_1102321626840506",
+		"fan_interstitial_unit_id": "IMG_16_9_APP_INSTALL#1102290040176998_1103218190084183",
+		"fan_native_unit_id": "IMG_16_9_APP_INSTALL#1102290040176998_1142394442833224",
+		"startapp_app_id": "0",
+		"unity_game_id": "4089993",
+		"unity_banner_placement_id": "banner",
+		"unity_interstitial_placement_id": "video",
+		"applovin_banner_ad_unit_id": "0",
+		"applovin_interstitial_ad_unit_id": "0",
+		"applovin_native_ad_manual_unit_id": "0",
+		"applovin_banner_zone_id": "0",
+		"applovin_interstitial_zone_id": "0",
+		"ironsource_app_key": "85460dcd",
+		"ironsource_banner_id": "DefaultBanner",
+		"ironsource_interstitial_id": "DefaultInterstitial",
+		"interstitial_ad_interval": 3,
+		"native_ad_index": 5
+	},
+	"labels": [
+		{
+			"term": "Heroic Journeys",
+			"image": "https://i.pinimg.com/originals/ba/9c/d5/ba9cd5c8bc935608dc6196b3c73fb43d.jpg"
+		},
+		{
+			"term": "Epic Adventures",
+			"image": "https://i.pinimg.com/originals/a8/c4/1d/a8c41d4a48db08e83547a34127a03174.jpg"
+		},
+		{
+			"term": "Fantasy Realms",
+			"image": "https://i.pinimg.com/originals/6f/b9/0f/6fb90ffdaa66da3e1fa83797ed9601f3.jpg"
+		},
+		{
+			"term": "Sci-Fi Wonders",
+			"image": "https://i.pinimg.com/originals/fb/93/06/fb93065453c5c2f3f662a1c293e8f268.jpg"
+		},
+		{
+			"term": "Live",
+			"image": "https://i.pinimg.com/originals/1d/e4/fc/1de4fcd9aca3949a54a9c7777d0c12fe.gif"
+		}
+	]
+}

@@ -1,0 +1,45 @@
+{
+	"app": {
+		"version": "1.0",
+		"status":true,
+		"description": "Please update now!",
+		"redirect_url": "https://play.google.com/store/apps/details?id=PACKAGENAME",
+		"privacy_policy_url": "https://yoursite.com/privacy-policy.html",
+		"more_apps_url": "https://play.google.com/store/apps/developer?id=YOURDEV"
+
+		},
+	"ads": {
+		"ad_status": true,
+		"interstitial_status": true,
+		"banner_status": true,
+		"reward_status": true,
+		"admob_banner_unit_id": "ca-app-pub-3940256099942544/6300978111",
+		"admob_interstitial_unit_id": "ca-app-pub-3940256099942544/1033173712",
+		"admob_reward_unit_id": "ca-app-pub-3940256099942544/5224354917",
+		"admob_native_unit_id": "ca-app-pub-3940256099942544/2247696110",
+		"admob_app_open_ad_unit_id": "ca-app-pub-3940256099942544/9257395921",
+		},
+	"contents_game": [
+	{
+      "videoToUnlock": true,
+      "itemName": "server_1",
+      "colorImageUrl": "https://image.ibb.co/eWBh97/44.png",
+      "grayImageUrl": "https://image.ibb.co/cdE2sS/44.png"
+    },
+    {
+      "itemName": "server_2",
+      "colorImageUrl": "https://image.ibb.co/gnZ297/45.png",
+      "grayImageUrl": "https://image.ibb.co/kQEP6n/45.png"
+    },
+    {
+      "itemName": "server_3",
+      "colorImageUrl": "https://image.ibb.co/kCEfwn/46.png",
+      "grayImageUrl": "https://image.ibb.co/nE2Bmn/46.png"
+    },
+    {
+      "itemName": "server_4",
+      "colorImageUrl": "https://image.ibb.co/h9a9p7/47.png",
+      "grayImageUrl": "https://image.ibb.co/eyufe7/47.png"
+    }
+  ]
+}

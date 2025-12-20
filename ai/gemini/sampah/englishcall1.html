@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Bahasa Inggris Online & Offline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #CEF4FE 0%, #D8BEF3 50%, #EF669B 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 768px;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #00A651, #FFDE00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .button-gradient {
+            background: linear-gradient(90deg, #A88747, #FFDE00);
+            border: 2px solid black;
+            transition: all 0.3s ease;
+        }
+        .button-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .img-card {
+            border: 2px solid black;
+            box-shadow: 8px 8px 0px black;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .play-button svg {
+            fill: white;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="container mx-auto">
+        <!-- Navigation Menu -->
+        <nav class="flex justify-center sm:justify-between items-center py-4 px-2">
+            <img src="https://i0.wp.com/englishcall.id/wp-content/uploads/2022/02/logo-english-call-12.png" alt="Logo" class="hidden sm:block h-[45px]">
+            <div class="flex flex-wrap justify-center sm:space-x-4 text-sm font-semibold">
+                <a href="#tentang-kami" class="mx-2 my-1">Tentang Kami</a>
+                <a href="#program" class="mx-2 my-1">Program</a>
+                <a href="#testimonial" class="mx-2 my-1">Testimonial</a>
+                <a href="#kontak" class="mx-2 my-1">Kontak</a>
+            </div>
+            <button class="bg-red-500 text-white font-bold py-2 px-4 rounded-full hidden sm:block">Daftar Sekarang</button>
+        </nav>
+
+        <!-- Header Section -->
+        <header class="text-center py-8">
+            <h1 class="text-xl font-bold mb-1">PROGRAM KURSUS BAHASA INGGRIS PRIVATE</h1>
+            <p class="text-3xl font-bold mb-4">I LOVE YOU DOANG?</p>
+            <div class="relative w-full max-w-sm mx-auto rounded-lg img-card overflow-hidden">
+                <!-- Thumbnail and Play Button -->
+                <div id="video-thumbnail" class="cursor-pointer">
+                    <img src="https://img.youtube.com/vi/ag8n64qaTxs/hqdefault.jpg" alt="Video Thumbnail" class="w-full h-auto">
+                    <div class="play-button">
+                        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                </div>
+                <!-- Video Container (Initially hidden) -->
+                <div id="video-player" class="video-container hidden">
+                    <!-- The src is initially set without autoplay -->
+                    <iframe id="video-iframe" src="https://www.youtube-nocookie.com/embed/ag8n64qaTxs?controls=1&rel=0&playsinline=0&cc_load_policy=0&enablejsapi=1&origin=https%3A%2F%2Fenglishcall.id&widgetid=1&forigin=https%3A%2F%2Fenglishcall.id%2F&aoriginsup=0&vf=6" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mt-4">
+                <button class="button-gradient text-white font-bold py-2 px-6 rounded-full">Daftar Sekarang</button>
+                <button class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-full">Lihat Biaya</button>
+            </div>
+        </header>
+
+        <!-- Section: Why Us? -->
+        <section id="tentang-kami" class="my-12 text-center">
+            <h2 class="text-2xl font-bold mb-4 relative inline-block">
+                KENAPA KURSUS DI SINI?
+                <span class="absolute left-1/2 transform -translate-x-1/2 -bottom-2 w-full h-1 bg-yellow-400 rounded-full"></span>
+            </h2>
+            <img src="https://placehold.co/300x400/FFFFFF/000000?text=Why+Us+Image" alt="Why Us" class="w-full max-w-sm mx-auto rounded-lg img-card mt-4">
+        </section>
+
+        <!-- Section: Program Pilihan -->
+        <section id="program" class="my-12 text-center">
+            <h2 class="text-2xl font-bold mb-4 relative inline-block">
+                PROGRAM PILIHAN
+                <span class="absolute left-1/2 transform -translate-x-1/2 -bottom-2 w-full h-1 bg-yellow-400 rounded-full"></span>
+            </h2>
+            <div class="flex flex-col md:flex-row justify-center space-y-6 md:space-y-0 md:space-x-6 mt-4">
+                <div class="bg-white p-4 rounded-lg img-card flex-1">
+                    <img src="https://placehold.co/200x200/FFFFFF/000000?text=Online+Icon" alt="Online" class="mx-auto mb-2">
+                    <h3 class="font-bold text-xl">Online</h3>
+                    <p>Akses kapan pun, di mana pun</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg img-card flex-1">
+                    <img src="https://placehold.co/200x200/FFFFFF/000000?text=Offline+Icon" alt="Offline" class="mx-auto mb-2">
+                    <h3 class="font-bold text-xl">Offline</h3>
+                    <p>Tatapan muka dengan pengajar</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Fitur Kelas Private -->
+        <section class="my-12 text-center">
+            <h2 class="text-2xl font-bold mb-4 relative inline-block">
+                KENAPA KELAS PRIVATE?
+                <span class="absolute left-1/2 transform -translate-x-1/2 -bottom-2 w-full h-1 bg-yellow-400 rounded-full"></span>
+            </h2>
+            <div class="flex flex-col md:flex-row justify-center space-y-6 md:space-y-0 md:space-x-6 mt-4">
+                <div class="bg-white p-4 rounded-lg img-card flex-1">
+                    <img src="https://placehold.co/200x200/FFFFFF/000000?text=Fitur+Image" alt="Fitur" class="mx-auto mb-2">
+                    <ul class="text-left mt-2 space-y-2">
+                        <li>Fokus materi sesuai kebutuhan</li>
+                        <li>Jadwal fleksibel</li>
+                        <li>Sesi personal</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-4 rounded-lg img-card flex-1">
+                    <img src="https://placehold.co/200x200/FFFFFF/000000?text=Zoom+Icon" alt="Zoom" class="mx-auto mb-2">
+                    <h3 class="font-bold text-xl">Pilihan Platform</h3>
+                    <p>Zoom, Google Meet, atau offline</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Hubungi Kami -->
+        <section id="kontak" class="my-12 text-center">
+            <h2 class="text-2xl font-bold mb-4 relative inline-block">
+                HUBUNGI KAMI
+                <span class="absolute left-1/2 transform -translate-x-1/2 -bottom-2 w-full h-1 bg-yellow-400 rounded-full"></span>
+            </h2>
+            <div class="flex justify-center space-x-4 mt-4">
+                <a href="#" class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <img src="https://placehold.co/30x30/FFFFFF/000000?text=WA" alt="WhatsApp">
+                </a>
+                <a href="#" class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <img src="https://placehold.co/30x30/FFFFFF/000000?text=IG" alt="Instagram">
+                </a>
+                <a href="#" class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <img src="https://placehold.co/30x30/FFFFFF/000000?text=YT" alt="YouTube">
+                </a>
+                <a href="#" class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <img src="https://placehold.co/30x30/FFFFFF/000000?text=FB" alt="Facebook">
+                </a>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonial" class="my-12 text-center">
+            <h2 class="text-2xl font-bold mb-4 relative inline-block">
+                TESTIMONIAL
+                <span class="absolute left-1/2 transform -translate-x-1/2 -bottom-2 w-full h-1 bg-yellow-400 rounded-full"></span>
+            </h2>
+            <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
+                <div class="bg-white p-4 rounded-lg img-card flex-1 text-left">
+                    <p>"Mantap, pengajarannya mudah dimengerti."</p>
+                    <p class="font-bold mt-2">- Nama Klien 1</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg img-card flex-1 text-left">
+                    <p>"Jadwalnya fleksibel, sangat membantu."</p>
+                    <p class="font-bold mt-2">- Nama Klien 2</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg img-card flex-1 text-left">
+                    <p>"Metode belajarnya efektif, cepat bisa."</p>
+                    <p class="font-bold mt-2">- Nama Klien 3</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <footer class="text-center py-8">
+            <div class="flex items-center justify-center space-x-2">
+                <img src="https://i0.wp.com/englishcall.id/wp-content/uploads/2022/02/logo-english-call-12.png" alt="Logo" class="h-[45px]">
+                <span class="text-lg font-bold gradient-text">Private Bahasa Inggris</span>
+            </div>
+            <p class="text-xs text-gray-600 mt-2">© 2023 Private Bahasa Inggris. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script>
+        const videoThumbnail = document.getElementById('video-thumbnail');
+        const videoPlayer = document.getElementById('video-player');
+        const videoIframe = document.getElementById('video-iframe');
+
+        videoThumbnail.addEventListener('click', () => {
+            // Hide the thumbnail and show the video container
+            videoThumbnail.classList.add('hidden');
+            videoPlayer.classList.remove('hidden');
+
+            // Get the current iframe source
+            let currentSrc = videoIframe.src;
+            
+            // Check if autoplay parameter is already present and set to 1
+            if (!currentSrc.includes('autoplay=1')) {
+                // If not, add it to the URL to force autoplay
+                const newSrc = currentSrc.includes('?') ? `${currentSrc}&autoplay=1` : `${currentSrc}?autoplay=1`;
+                videoIframe.src = newSrc;
+            }
+        });
+    </script>
+</body>
+</html>

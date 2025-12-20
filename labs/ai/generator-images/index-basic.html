@@ -1,0 +1,1219 @@
+
+<style>
+  /* [CSS berada di bawah, tetap di HTML untuk melihat penempatan kode.] */
+textarea {
+  width: 100%; font-size: 16px; margin-bottom: 10px; height: 100px; border-radius: 4px;
+}
+.controls {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;
+}
+.controls select, .controls input[type="text"], .controls label {
+  font-size: 14px; padding: 5px; flex: 1; min-width: 150px; border-radius: 4px;
+}
+button {
+  font-size: 16px; margin: 10px 0;
+}
+.generate-btn {
+  width: 100%;
+}
+.image-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 20px;
+}
+.image-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  padding: 8px;
+}
+.image-item img {
+  width: 100%; border-radius: 6px;
+}
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+}
+.progress-bar-bg {
+  background: #eee;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 300px;
+  height: 20px;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, #6eb1fb 0%, #277be6 100%);
+  height: 100%;
+  width: 0%;
+  border-radius: 5px 0 0 5px;
+  transition: width 0.3s;
+  position: relative;
+}
+.progress-bar-label {
+  min-width: 46px;
+  font-size: 14px;
+  color: #333;
+  text-align: right;
+}
+.history-grid {
+  display: flex; flex-direction: column; gap: 8px; margin-top: 10px;
+}
+.history-item {
+  display: flex; align-items: flex-start; background: auto; padding: 8px; border-radius: 8px; position: relative; gap: 10px;
+  border: 1px solid #e5e7ee; box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.history-thumbnail {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-right: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  background:#fff;
+}
+.history-details {
+  flex: 1;
+  font-size: 13px;
+  word-break: break-word;
+}
+.history-prompts {
+  font-size:12px;
+  margin-bottom: 5px;
+}
+.history-original {
+  color:auto; font-style: normal;
+}
+.history-english {
+  color:#297be8; font-style:italic;
+}
+.history-meta {
+  margin-bottom:4px;
+  color:auto;
+  font-size:12px;
+}
+.history-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-left: 8px;
+}
+.history-actions button {
+  border: none;
+  outline: none;
+  padding: 5px 7px;
+  border-radius: 4px;
+  font-size:12px;
+  cursor:pointer;
+  color:#fff;
+  min-width: 28px;
+  min-height: 28px;
+  margin:0;
+  background: #1d72d3;
+  transition: background 0.22s;
+}
+.history-actions button:hover:not(.history-delete) {
+  background: #2aad3b;
+}
+.history-delete {
+  background: #e63535 !important; color:#fff;
+  border-radius: 50%; width:28px; height:28px;
+  font-weight:bolder;
+  margin-top:2px;
+}
+#loadingMessage {
+  text-align: center; display: none;
+}
+.loading-container {
+  text-align: center;
+  margin: 0 auto;
+}
+.loading-image {
+  width: 60px;
+  height: 60px;
+  animation: bounce 1s infinite;
+}
+.loading-text {
+  margin-top: 10px;
+  font-size: 16px;
+  animation: fade 1.5s infinite;
+  color: #333;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes fade {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+/* Feed styles */
+#image-feed-section {
+  margin-top: 30px;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: auto;
+}
+#image-feed-section h3 {
+  margin-top: 0;
+}
+#image-feed-output {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+}
+.feed-image-card {
+  background: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+.feed-image-card img {
+  width: 100px;
+  border-radius: 4px;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  flex-shrink: 0;
+}
+.feed-image-info {
+  flex: 1;
+  font-size: 13px;
+  word-break: break-word;
+}
+.feed-time {
+  color: auto;
+  font-size: 11px;
+  margin-top: 2px;
+}
+/* Translation Progress Styles */
+#translateProgressContainer {
+  margin-top: 18px;
+  margin-bottom: 8px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#translateProgressContainer .translate-label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #1561a9;
+  letter-spacing: 0.01em;
+}
+#translateProgressContainer .progress-row {
+  margin: 0;
+  width: 90%;
+  max-width: 350px;
+}
+#translateProgressContainer .progress-bar-label {
+  min-width: 38px;
+}
+/* Select group layout for style & lens */
+.select-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.select-group label {
+  min-width:120px; font-weight: 400;
+}
+.select-group select {
+  min-width: 180px;
+  font-size: 14px;
+  padding: 5px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #ced6e0;
+  margin-right: 8px;
+}
+:root {
+  --primary: #277be6;
+  --success: #43b37c;
+  --error: #e63535;
+  --warning: #ff9900;
+  --console-bg: #141d28;
+  --console-fg: #f4f7fa;
+  --console-head: #e9eef7;
+}
+/* Status indicator styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  padding: 7px 14px 7px 0;
+  gap: 10px;
+  font-size: 15px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: auto;
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 7px rgba(39,123,230,0.04);
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+.status-dot {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  background: auto;
+  border-radius: 12px;
+  margin-right: 5px;
+  border:2px solid #dae7fa;
+  transition: background 0.17s;
+  vertical-align:middle;
+}
+.status-dot.connected { background: var(--success); }
+.status-dot.warning { background: var(--warning);}
+.status-dot.error { background: var(--error);}
+.status-bar #statusText {
+  font-weight:500;
+  letter-spacing:0.01em;
+}
+/* Coin display badge */
+.coin-display {
+  background: #ffe49a;
+  color: #ad7a00;
+  border-radius: 18px;
+  padding: 2px 15px 2.5px 11px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(237,182,0,0.09);
+  display: flex;
+  align-items: center;
+  cursor:pointer;
+}
+.coin-display i.fa-coins { margin-right: 4.5px; color: #edb600; font-size: 16px;}
+/* Modal (coin password) */
+#coinPasswordModal {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  z-index:10099;
+}
+#coinPasswordModal input[type="password"] {
+  margin-top: 7px;
+  width: 180px;
+}
+/* Console panel styles */
+.console-outer {
+  border-radius: 6px;
+  background: var(--console-bg);
+  color: var(--console-fg);
+  box-shadow: 0 2px 7px rgba(0,0,0,0.08);
+  margin-bottom: 14px;
+  font-family: "Cascadia Mono", "Roboto Mono", "Fira Mono", "Menlo", "Consolas", "monospace";
+  overflow: hidden;
+}
+.console-header {
+  background: var(--console-head);
+  color: #333;
+  border-bottom: 1px solid #dbeaf9;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 6px 11px;
+  font-size: 14px;
+}
+.console-counter {
+  font-size:11.5px; color:auto; margin-left:10px;
+}
+.console-clear {
+  margin-left:auto;
+  margin-right:-4px;
+  background:transparent;
+  border:none;
+  font-size:18px;
+  color:#e04646;
+  cursor:pointer;
+  border-radius: 4px;
+  transition: background 0.19s;
+  padding:1px 6px;
+}
+.console-clear:hover { background: #ffeaea; }
+.console-content {
+  font-size: 13px;
+  min-height:38px;
+  max-height:135px;
+  overflow-y:auto;
+  padding: 6px 13px 8px 15px;
+  background: transparent;
+  word-break: break-word;
+}
+.console-content i.fas {
+  margin-right: 2px;
+  opacity: .9;
+}
+@media (max-width:600px) {
+  .status-bar { font-size:13px; padding:9px 6px 9px 0; }
+  .console-header { padding:6px 8px; font-size:12.6px; }
+  .console-content { font-size:11.1px; padding:6px 7px 10px 8px; }
+  .console-counter { font-size:10.2px;}
+}
+@media (max-width:579px) {
+  .coin-display {padding:2px 9px 2px 8px; font-size:13px;}
+}
+@media (max-width:600px) {
+  .controls, .select-group { flex-direction: column; }
+  .controls select, .controls input, .controls label, .select-group select { min-width: 120px;}
+  .history-details { font-size:11.2px;}
+}
+</style>
+
+<p>UBS Image Generator adalah layanan pembuat gambar otomatis berbasis AI Multi bahasa yang memungkinkan kamu menghasilkan karya visual hanya dengan mengetikkan sebuah prompt dalam bahasa apapun. Didukung oleh beberapa model canggih seperti Flux, Flux-Realism, Flux-Anime, Flux Turbo, OpenAI, Midjourney, Stable Diffusion, layanan ini dapat menciptakan gambar dengan berbagai gaya dan proporsi, mulai dari square hingga landscape.</p>
+
+<!-- StatusBar Section -->
+<div class="status-bar" id="statusBar">
+  <span class="status-dot connected" id="statusDot"></span>
+  <span id="statusText">System Siap Digunakan</span>
+  <span class="coin-display" id="coinDisplay" title="Sisa koin Anda hari ini">
+    <i class="fa fa-coins"></i>
+    <span id="coinValue">0</span> Koin
+    <span id="coinTimer" style="margin-left:7px;color:#007e50;font-weight:normal;font-size:13px;"></span>
+    <span id="coinRefreshAt" style="margin-left:7px; color:#1561a9; font-weight:normal; font-size:13px;" title="Koin akan direset otomatis pada jam berikut"></span>
+    <button id="refreshCoinBtn" style="margin-left:9px; border: none; background:transparent; font-size: 15px; cursor:pointer;" title="Refresh koin"><i class="fa fa-sync-alt"></i></button>
+  </span>
+</div>
+<div class="console-outer" id="systemConsolePanel" style="margin-bottom:16px;">
+  <div class="console-header">
+    <i class="fas fa-microchip"></i>
+    System Log <span class="console-counter" id="consoleCounter">(0)</span>
+    <button class="console-clear" id="clearConsoleBtn" title="Kosongkan log">🗑&#65039;</button>
+  </div>
+  <div class="console-content" id="consoleContent"></div>
+</div>
+
+<h3>Fitur unggulan:</h3>
+<ul style="text-align: left;">
+  <li>Pilihan model AI sesuai gaya yang kamu inginkan</li>
+  <li>Dukungan rasio gambar yang fleksibel untuk berbagai kebutuhan</li>
+  <li>Pilihan style, Angela kamera (lens/angle) dan model populer (MidJourney, SDXL, DALL-E, dsb)</li>
+  <li>Opsi watermark teks atau tanpa watermark</li>
+  <li>Riwayat prompt singkat beserta bahasa asli, Inggris, thumbnail, serta tombol aksi cepat</li>
+  <li>Proses pembuatan gambar cepat dengan tampilan loading interaktif</li>
+  <li>Prompt otomatis dialihkan kedalam bahasa inggris</li>
+</ul>
+Dengan antarmuka yang simpel dan fungsional, UBS Image Generator cocok digunakan untuk kreator konten, desainer, maupun siapa saja yang butuh visual unik secara instan.
+
+<br /><br />
+<b>Prompt:</b>
+<br />
+<textarea id="promptInput"></textarea>
+
+<div class="controls">
+  <select id="modelSelect">
+    <option value="flux">Flux</option>
+    <option value="flux-realism">Flux Realism</option>
+    <option value="flux-anime">Flux Anime</option>
+    <option value="flux-turbo">Flux Turbo</option>
+    <option value="openai">OpenAI (GPT/Dalle)</option>
+    <option value="midjourney">MidJourney</option>
+    <option value="stable-diffusion">Stable Diffusion XL</option>
+    <option value="dreamshaper">DreamShaper</option>
+  </select>
+
+  <select id="aspectRatioSelect">
+    <option value="1:1">1:1 (Square)</option>
+    <option value="portrait-mobile">Portrait Mobile</option>
+    <option value="portrait-desktop">Portrait Desktop</option>
+    <option value="landscape-mobile">Landscape Mobile</option>
+    <option value="landscape-desktop">Landscape Desktop</option>
+  </select>
+
+  <select id="imageCountSelect">
+    <option value="1">1 Gambar</option>
+    <option value="2">2 Gambar</option>
+    <option value="3">3 Gambar</option>
+    <option selected value="4">4 Gambar</option>
+  </select>
+
+  <input id="watermarkInput" placeholder="Teks watermark (opsional)" type="text" />
+  <label>
+    Tanpa Watermark
+    <input id="noWatermark" type="checkbox" />
+  </label>
+</div>
+<!-- Style and Lens selector -->
+<div class="select-group">
+  <label for="styleSelect">Style:</label>
+  <select id="styleSelect">
+    <option value="">Tidak ada (Bebas)</option>
+    <option value="cinematic">Cinematic</option>
+    <option value="comic">Comic</option>
+    <option value="fantasy">Fantasy</option>
+    <option value="realistic">Realistic</option>
+    <option value="anime">Anime</option>
+    <option value="oil painting">Oil Painting</option>
+    <option value="digital art">Digital Art</option>
+    <option value="pixel art">Pixel Art</option>
+    <option value="watercolor">Watercolor</option>
+    <option value="3d render">3D Render</option>
+    <option value="photorealistic">Photo Realistic</option>
+    <option value="minimalist">Minimalist</option>
+    <option value="cyberpunk">Cyberpunk</option>
+    <option value="fantasy landscape">Fantasy Landscape</option>
+  </select>
+
+  <label for="lensSelect">Angela Kamera:</label>
+  <select id="lensSelect">
+    <option value="">Default/none</option>
+    <option value="close-up shot">Close-Up Shot</option>
+    <option value="wide angle lens">Wide Angle Lens</option>
+    <option value="macro lens">Macro Lens</option>
+    <option value="telephoto lens">Telephoto Lens</option>
+    <option value="fisheye lens">Fisheye Lens</option>
+    <option value="portrait lens">Portrait Lens</option>
+    <option value="isometric view">Isometric View</option>
+    <option value="from above">From Above Angle</option>
+    <option value="over the shoulder">Over the Shoulder Shot</option>
+    <option value="cinematic lighting">Cinematic Lighting</option>
+  </select>
+</div>
+
+<!-- Translation Progress Placeholder -->
+<div id="translateProgressContainer">
+  <div class="translate-label">Menerjemahkan Prompt...</div>
+  <!-- Progress bar will be injected here -->
+</div>
+
+<button class="generate-btn" onclick="handleGenerate()">Buat Gambar</button>
+
+<div id="loadingMessage">
+  <div class="loading-container">
+    <img alt="Loading..." class="loading-image" src="https://lh3.googleusercontent.com/blogger_img_proxy/AEn0k_sfUOJfsZIaTqpRwGf0JASGSaiu8UQ5e7yfq8O2Pg19lyOP41q07Qdp8c_1djFY3dVtrszWqipiCl0B6blURopq3u6nH0wcaxs=s0-d-rw">
+    <div class="loading-text">🗣&#65039; Silahkan Tunggu...</div>
+  </div>
+</div>
+
+<div class="image-grid" id="imageContainer"></div>
+
+<h3>Riwayat Prompt:</h3>
+<div class="history-grid" id="promptHistory"></div>
+
+<!-- Modal Password Koin -->
+<div id="coinPasswordModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.36); z-index:1009; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:8px; min-width:310px; box-shadow:0 6px 38px rgba(30,54,135,0.13); padding:23px 22px 18px 22px; max-width:97vw; text-align:center;position:relative;">
+    <div style="font-weight:bold; margin-bottom:10px; font-size:17px; color:#1561a9;">Tingkatkan Koin Harian</div>
+    <p style="margin-top:0;font-size:14px;">Kamu telah mencapai batas maksimum 500 koin/generate hari ini.<br>
+    Masukkan password yang diberikan admin.</p>
+    <input type="password" id="modalCoinPassword" style="padding:6px 7px;" placeholder="Password dari admin"><br>HUBUNGI ADMIN VIA FACEBOOK/WHATSAPP<br><br><br>Klik <a href="https://facebook.com/403.frobidden">DISINI</a> untuk hubungi Admin<br><br>
+    <span id="modalCoinMsg" style="color:#c22;font-size:13px;display:block;margin-top:7px;"></span>
+    <button id="submitCoinPassword" style="margin-top:15px; padding:5px 16px; font-size:15px; border-radius:5px; border:none; background:#277be6; color:#fff;">Submit</button>
+    <button onclick="closeCoinPasswordModal()" style="margin-top:15px; margin-left:7px; padding:5px 16px; font-size:13px; border-radius:5px; border:none; background:#aaa; color:#fff;">Tutup</button>
+  </div>
+</div>
+
+<!-- Feed Section Start -->
+<div id="image-feed-section">
+  <h3>Feed Gambar Publik Terbaru <span style="font-size: 13px; color:#888">(Real-time)</span></h3>
+  <div id="image-feed-output"></div>
+</div>
+<!-- Feed Section End -->
+
+<script>
+/* ==== CONFIG: CHANGE THIS PASSWORD ON SERVER/ADMIN ==== */
+const ADMIN_COIN_PASSWORD = "******"; // <--- ADMIN HARUS GANTI PASSWORD INI
+
+// --- Log & Coin Feature ---
+const COIN_LIMIT_PER_DAY = 500;
+const COIN_COST_PER_GEN = 10;
+const COIN_STORAGE_KEY = "ubs_day_coin_v2";
+const CONSOLE_STORAGE_KEY = "ubs_syslog_v2";
+
+// =========== SYSTEM LOGGER ===========
+function logSystem(message, type="info") {
+  // type: info, success, error, warn
+  const consoleDiv = document.getElementById("consoleContent");
+  let logs = JSON.parse(localStorage.getItem(CONSOLE_STORAGE_KEY) || "[]");
+  const now = new Date();
+  let color = {
+    info: "#68b1db", success: "#43b37c", error: "#e63535", warn: "#e89b22"
+  }[type] || "#68b1db";
+
+  logs.unshift({
+    time: now.toLocaleTimeString(),
+    msg: message,
+    type: type
+  });
+  while (logs.length > 40) logs.pop();
+
+  // Store log
+  localStorage.setItem(CONSOLE_STORAGE_KEY, JSON.stringify(logs));
+  renderConsoleLogs();
+}
+function renderConsoleLogs() {
+  const consoleDiv = document.getElementById("consoleContent");
+  const counterSpan = document.getElementById("consoleCounter");
+  let logs = JSON.parse(localStorage.getItem(CONSOLE_STORAGE_KEY) || "[]");
+  consoleDiv.innerHTML = logs.map(log =>
+    `<span style="color:#bbb;">[${log.time}]</span> <i class="fas fa-${
+      log.type=='error'?"times-circle":(log.type=='success'?"check-circle":"info-circle")
+    }" style="color:${{
+      info:"#68b1db", success:"#43b37c", error:"#e63535", warn:"#e89b22"
+    }[log.type]||"#68b1db"}"></i> <span style="color:${{
+      info:"#d3e6fa", success:"#bcf7e5", error:"#ffbdbd", warn:"#ffeab3"
+    }[log.type]||"#fff"}">${sanitize(log.msg)}</span><br>`
+  ).join("");
+  counterSpan.textContent = `(${logs.length})`;
+}
+function clearConsoleLogs() {
+  localStorage.setItem(CONSOLE_STORAGE_KEY, "[]");
+  renderConsoleLogs();
+}
+document.getElementById("clearConsoleBtn").onclick = clearConsoleLogs;
+renderConsoleLogs();
+
+// =========== COIN MECHANISM ==============
+function getTodayDateStr() {
+  // e.g. 2024-05-01
+  const now = new Date();
+  return now.getFullYear()+"-"+(now.getMonth()+1).toString().padStart(2,"0")+"-"+now.getDate().toString().padStart(2,"0");
+}
+function getStoredCoinData() {
+  // {date, koin}
+  try {
+    const data = JSON.parse(localStorage.getItem(COIN_STORAGE_KEY));
+    if (data && data.date === getTodayDateStr()) return data;
+    else return {date:getTodayDateStr(), koin:COIN_LIMIT_PER_DAY};
+  } catch { return {date:getTodayDateStr(), koin:COIN_LIMIT_PER_DAY}; }
+}
+function setStoredCoin(koin) {
+  localStorage.setItem(COIN_STORAGE_KEY, JSON.stringify({date:getTodayDateStr(), koin}));
+}
+function resetKoinToday() {
+  setStoredCoin(COIN_LIMIT_PER_DAY);
+  updateCoinDisplay();
+}
+function decreaseKoin(amount) {
+  let data = getStoredCoinData();
+  if (data.koin>=amount) {
+    setStoredCoin(data.koin-amount);
+    updateCoinDisplay();
+    return true;
+  }
+  return false;
+}
+function updateCoinDisplay() {
+  let data = getStoredCoinData();
+  let coinEl = document.getElementById("coinValue");
+  coinEl.textContent = data.koin;
+  let cDisp = document.getElementById("coinDisplay");
+  if(data.koin <= 40 && data.koin > 0) {
+    cDisp.style.background = "#ffe2e4"; cDisp.style.color="#b0162b";
+    cDisp.title = "Sisa koin hampir habis, mohon minta admin untuk reset jika perlu";
+  } else if (data.koin === 0) {
+    cDisp.style.background="#f8d5b6"; cDisp.style.color="#8b2300";
+    cDisp.title="Koin habis. Tidak bisa generate sampai besok atau reset admin.";
+  } else {
+    cDisp.style.background="#ffe49a"; cDisp.style.color="#ad7a00";
+    cDisp.title="Koin harian UBS Anda";
+  }
+  updateCoinTimer(); // Tambahkan timer setiap kali update koin
+  updateCoinRefreshAt(); // Tambahkan waktu refresh berikutnya setiap kali update koin
+}
+function canUserGenerate(count=1) {
+  // Each generate subtract as count*COIN_COST_PER_GEN koin
+  let coin = getStoredCoinData().koin||0;
+  return coin >= (count*COIN_COST_PER_GEN);
+}
+// Refresh coin by user (reload UI)
+document.getElementById("refreshCoinBtn").onclick = function() {
+  updateCoinDisplay();
+  logSystem("Koin berhasil di-refresh.", "info");
+  this.classList.add("fa-spin");
+  setTimeout(()=>this.classList.remove("fa-spin"),700);
+};
+// Submit password for coin admin reset
+function openCoinPasswordModal() {
+  document.getElementById("coinPasswordModal").style.display = "flex";
+  document.getElementById("modalCoinPassword").value = "";
+  document.getElementById("modalCoinMsg").textContent = "";
+}
+function closeCoinPasswordModal() {
+  document.getElementById("coinPasswordModal").style.display = "none";
+}
+
+document.getElementById("submitCoinPassword").onclick = function() {
+  let inp = document.getElementById("modalCoinPassword");
+  let msg = document.getElementById("modalCoinMsg");
+  if (inp.value.trim() === "") {
+    msg.textContent = "Password wajib diisi"; return;
+  }
+  if (inp.value.trim() === ADMIN_COIN_PASSWORD) {
+    resetKoinToday();
+    msg.style.color = "#13a000";
+    msg.textContent = "Berhasil! Koin Anda direset ke 500!";
+    logSystem("Koin harian berhasil direset via admin password.", "success");
+    setTimeout(()=>{
+      closeCoinPasswordModal();
+      updateCoinDisplay();
+    },1200);
+  } else {
+    msg.style.color = "#c22"
+    msg.textContent = "Password salah. Hubungi admin untuk mendapat password baru.";
+    logSystem("Reset koin gagal: password admin salah.", "error");
+  }
+};
+document.getElementById("coinDisplay").onclick = function(e) {
+  if(getStoredCoinData().koin===0) openCoinPasswordModal();
+}
+updateCoinDisplay();
+logSystem("Sistem siap digunakan.", "success");
+
+// ========== COIN AUTO-REFRESH COUNTDOWN & WAKTU ============
+function updateCoinTimer() {
+  const timerEl = document.getElementById("coinTimer");
+  if (!timerEl) return;
+  let now = new Date();
+  let next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+  let ms = next.getTime() - now.getTime();
+  if (ms < 0) ms = 0;
+
+  function pad(n){return n.toString().padStart(2,"0");}
+  let total = Math.floor(ms/1000);
+  let h = Math.floor(total/3600);
+  let m = Math.floor((total%3600)/60);
+  let s = total%60;
+
+  if(getStoredCoinData().koin === 0) {
+    timerEl.innerHTML = `<i class="fas fa-clock"></i> <span title="Refresh koin harian jam 00:00">${pad(h)}:${pad(m)}:${pad(s)}</span>`;
+    timerEl.style.display = "inline";
+  } else {
+    timerEl.innerHTML = '';
+    timerEl.style.display = "none";
+  }
+}
+// Waktu koin akan di-refresh
+function updateCoinRefreshAt() {
+  const refreshEl = document.getElementById("coinRefreshAt");
+  if (!refreshEl) return;
+  let now = new Date();
+  let next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+
+  // Format jam:menit:detik
+  let h = next.getHours().toString().padStart(2,"0");
+  let m = next.getMinutes().toString().padStart(2,"0");
+  let s = next.getSeconds().toString().padStart(2,"0");
+
+  // Tanggal/Bulan/Tahun
+  let dd = next.getDate().toString().padStart(2,"0");
+  let mm = (next.getMonth()+1).toString().padStart(2,"0");
+  let yy = next.getFullYear();
+
+  refreshEl.innerHTML = `<i class="far fa-clock"></i> <span>Koin <b>otomatis reset</b> : <b>${dd}-${mm}-${yy} 00:00 WIB</b></span>`;
+}
+setInterval(() => {
+  updateCoinTimer();
+  updateCoinRefreshAt();
+}, 1000);
+updateCoinTimer();
+updateCoinRefreshAt();
+
+// ================= ORIGINAL SCRIPT: (add coin logic on generate) ===========
+function getDimensions(aspect) {
+  switch (aspect) {
+    case "1:1": return { width: 1024, height: 1024 };
+    case "portrait-mobile": return { width: 720, height: 1280 };
+    case "portrait-desktop": return { width: 1080, height: 1350 };
+    case "landscape-mobile": return { width: 1280, height: 720 };
+    case "landscape-desktop": return { width: 1920, height: 1080 };
+    default: return { width: 1024, height: 1024 };
+  }
+}
+const MODEL_TO_STRING = {
+  "flux": "Flux",
+  "flux-realism": "Flux Realism",
+  "flux-anime": "Flux Anime",
+  "flux-turbo": "Flux Turbo",
+  "openai": "OpenAI/Dalle",
+  "midjourney": "MidJourney",
+  "stable-diffusion": "Stable Diffusion XL",
+  "dreamshaper": "DreamShaper"
+};
+function createProgressBarElement(index, uniqueStr = "") {
+  const row = document.createElement('div');
+  row.className = "progress-row";
+  row.style.marginBottom = '8px';
+
+  const barBg = document.createElement('div');
+  barBg.className = "progress-bar-bg";
+
+  const barFill = document.createElement('div');
+  barFill.className = "progress-bar-fill";
+  barFill.style.width = "0%";
+  barFill.id = `progressBarFill${index}_${Date.now()}${uniqueStr}`;
+
+  barBg.appendChild(barFill);
+
+  const label = document.createElement('div');
+  label.className = "progress-bar-label";
+  label.textContent = "0%";
+  label.id = `progressBarLabel${index}_${Date.now()}${uniqueStr}`;
+
+  row.appendChild(barBg);
+  row.appendChild(label);
+
+  return { dom: row, barFill, label };
+}
+function simulateProgressBar(barFill, label, duration = 1500, onDone) {
+  let progress = 0;
+  let stopped = false;
+  let start = Date.now();
+
+  function step() {
+    if (stopped) return;
+    let elapsed = Date.now() - start;
+    let target = Math.min(90, (elapsed / duration) * 90);
+    if (target > progress) progress = target;
+    if (barFill) barFill.style.width = Math.floor(progress) + "%";
+    if (label) label.textContent = Math.floor(progress) + "%";
+    if (progress < 90) {
+      setTimeout(step, 140 + Math.random() * 120);
+    }
+  }
+  step();
+  return () => {
+    stopped = true;
+    if (barFill) barFill.style.width = "100%";
+    if (label) label.textContent = "100%";
+    if (onDone) onDone();
+  };
+}
+async function detectAndTranslate(text, progressCb) {
+  let doneMark;
+  if (progressCb) doneMark = progressCb();
+
+  const res = await fetch("https://text.pollinations.ai/openai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a translator that converts any language to English." },
+        { role: "user", content: text }
+      ]
+    })
+  });
+  const result = await res.json();
+
+  if (doneMark) doneMark();
+
+  return result.choices?.[0]?.message?.content || text;
+}
+function buildPromptWithStyle(base, style, lens) {
+  let styleStr = '';
+  if (style && style.trim()) styleStr += ', ' + style;
+  if (lens && lens.trim()) styleStr += ', ' + lens;
+  return base + styleStr;
+}
+async function fetchImage(prompt, width, height, seed, model, watermarkText, noWatermark) {
+  let queryPrompt = encodeURIComponent(prompt);
+  let modelStr = model;
+  let apiUrl, extraParams="";
+  if (model === "openai") {
+    apiUrl = `https://image.pollinations.ai/prompt/${queryPrompt}?model=openai&width=${width}&height=${height}&seed=${seed}&nologo=true`;
+  } else if (model === "midjourney") {
+    apiUrl = `https://image.pollinations.ai/prompt/${queryPrompt}?model=midjourney&width=${width}&height=${height}&seed=${seed}&nologo=true`;
+  } else if (model === "stable-diffusion" || model === "dreamshaper") {
+    apiUrl = `https://image.pollinations.ai/prompt/${queryPrompt}?model=${model}&width=${width}&height=${height}&seed=${seed}&nologo=true`;
+  } else {
+    apiUrl = `https://image.pollinations.ai/prompt/${queryPrompt}?model=${model}&width=${width}&height=${height}&seed=${seed}&nologo=true`;
+  }
+  const response = await fetch(apiUrl);
+  const imageBlob = await response.blob();
+
+  if (noWatermark) return URL.createObjectURL(imageBlob);
+  return await applyWatermark(imageBlob, width, height, watermarkText);
+}
+function applyWatermark(blob, width, height, text) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      ctx.font = `${Math.floor(height * 0.04)}px Arial`;
+      ctx.fillStyle = "rgba(255,255,255,0.7)";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(text || "🅄🄱🅂", width - 8, height - 8);
+      canvas.toBlob(blob => resolve(URL.createObjectURL(blob)), "image/png");
+    };
+    img.src = URL.createObjectURL(blob);
+  });
+}
+let lastGeneratedThumb = null;
+
+async function handleGenerate(repeatArgs) {
+  // Check koin before generate
+  const model = document.getElementById("modelSelect").value;
+  const count = parseInt(document.getElementById("imageCountSelect").value);
+  if (!canUserGenerate(count)) {
+    logSystem("Koin Anda tidak cukup untuk generate gambar. Silakan tunggu besok atau minta admin reset.", "error");
+    updateCoinDisplay();
+    // Dialog modal password admin only if 0
+    if(getStoredCoinData().koin===0) openCoinPasswordModal();
+    return alert("Koin Anda tidak cukup. Sisa koin: " + getStoredCoinData().koin + ".\nMinta admin untuk reset dengan password jika sudah mencapai limit harian.");
+  }
+
+  const aspect = document.getElementById("aspectRatioSelect").value;
+  const watermarkText = document.getElementById("watermarkInput").value.trim();
+  const noWatermark = document.getElementById("noWatermark").checked;
+  const style = document.getElementById("styleSelect").value;
+  const lens = document.getElementById("lensSelect").value;
+  const { width, height } = getDimensions(aspect);
+
+  let rawPrompt, origPrompt, translatedPrompt, usedStyle, usedLens;
+  if (repeatArgs) {
+    origPrompt = repeatArgs.origPrompt;
+    translatedPrompt = repeatArgs.prompt;
+    rawPrompt = origPrompt;
+    usedStyle = repeatArgs.style||"";
+    usedLens = repeatArgs.lens||"";
+    // Tampilkan juga log repeat (riwayat)
+    logSystem(`Generate ulang prompt dari riwayat dengan model <b>${MODEL_TO_STRING[model]||model}</b>.`, "info");
+    logSystem(`Prompt asli: <span>${sanitize(origPrompt)}</span>`, "info");
+    logSystem(`Prompt bahasa Inggris: <span>${sanitize(translatedPrompt)}</span>`, "info");
+  } else {
+    rawPrompt = document.getElementById("promptInput").value.trim();
+    if (!rawPrompt) return alert("Masukkan prompt terlebih dahulu.");
+
+    document.getElementById("imageContainer").innerHTML = "";
+    document.getElementById("loadingMessage").style.display = "none";
+
+    // Log aktivitas input prompt
+    logSystem(`User memasukkan prompt: <span>${sanitize(rawPrompt)}</span>`, "info");
+
+    const translateProgress = document.getElementById("translateProgressContainer");
+    translateProgress.style.display = "flex";
+    translateProgress.innerHTML = `<div class="translate-label">Menerjemahkan Prompt...</div>`;
+    const barObj = createProgressBarElement("trans", "_tr");
+    translateProgress.appendChild(barObj.dom);
+
+    let doneMark = simulateProgressBar(barObj.barFill, barObj.label, 1700);
+    translatedPrompt = await detectAndTranslate(rawPrompt, doneMark);
+
+    // Log setelah prompt diterjemahkan
+    logSystem(`Prompt berhasil diterjemahkan ke bahasa Inggris: <span>${sanitize(translatedPrompt)}</span>`, "success");
+
+    await new Promise(r => setTimeout(r, 200));
+    translateProgress.style.display = "none";
+    origPrompt = rawPrompt;
+    usedStyle = style;
+    usedLens = lens;
+
+    logSystem(`Memulai proses generate menggunakan model <b>${MODEL_TO_STRING[model] || model}</b> (${count} gambar).`, "info");
+    if (usedStyle) logSystem(`Style dipilih: <b>${sanitize(usedStyle)}</b>.`, "info");
+    if (usedLens)  logSystem(`Angela kamera: <b>${sanitize(usedLens)}</b>.`, "info");
+    if (noWatermark) logSystem(`Tanpa watermark.`, "info"); else if(watermarkText) logSystem(`Menggunakan watermark: <b>${sanitize(watermarkText)}</b>.`, "info");
+    logSystem(`Aspect ratio: <b>${sanitize(aspect)}</b>. Resolusi: ${width}x${height}`, "info");
+  }
+  // PROMPT with style/lens
+  let promptWithStyle = buildPromptWithStyle(translatedPrompt, usedStyle, usedLens);
+
+  document.getElementById("imageContainer").innerHTML = "";
+  document.getElementById("loadingMessage").style.display = "block";
+
+  let finishedCount = 0;
+  let thumbUrl = null;
+  let usedSeedArr = [];
+
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement("div");
+    div.className = "image-item";
+
+    const progressBar = createProgressBarElement(i);
+    div.appendChild(progressBar.dom);
+
+    document.getElementById("imageContainer").appendChild(div);
+
+    let doneMarkImg = simulateProgressBar(progressBar.barFill, progressBar.label, null);
+
+    (async () => {
+      let seed = repeatArgs && repeatArgs.seedArr && repeatArgs.seedArr[i] !== undefined
+        ? repeatArgs.seedArr[i]
+        : Math.floor(Math.random() * 99999999);
+
+      usedSeedArr.push(seed);
+
+      try {
+        logSystem(`Memulai generate gambar ke-${i+1} dengan seed <b>${seed}</b>...`, "info");
+        const imageUrl = await fetchImage(promptWithStyle, width, height, seed, model, watermarkText, noWatermark);
+        if (doneMarkImg) doneMarkImg();
+
+        const img = document.createElement("img");
+        img.src = imageUrl;
+        div.appendChild(img);
+
+        const downloadBtn = document.createElement("button");
+        downloadBtn.textContent = "Download";
+        downloadBtn.onclick = () => {
+          const a = document.createElement("a");
+          a.href = imageUrl;
+          a.download = `UBS-image-${seed}.png`;
+          a.click();
+          logSystem(`User mendownload gambar hasil generate (seed ${seed})`, "info");
+        };
+        div.appendChild(downloadBtn);
+
+        if (!thumbUrl) thumbUrl = imageUrl;
+        finishedCount++;
+        logSystem(`Gambar ke-${i+1} berhasil digenerate.`, "success");
+        if (finishedCount === count) {
+          document.getElementById("loadingMessage").style.display = "none";
+          savePromptToHistory({
+            origPrompt,
+            translatedPrompt,
+            model,
+            aspect,
+            style: usedStyle,
+            lens: usedLens,
+            thumb: thumbUrl,
+            seedArr: usedSeedArr
+          });
+          // --- Koin logic here: decrease on each generate session
+          decreaseKoin(count * COIN_COST_PER_GEN);
+          logSystem(`Generate gambar selesai (${count}). Koin terpakai: ${count*COIN_COST_PER_GEN}. Sisa koin: ${getStoredCoinData().koin}`, "success");
+          updateCoinDisplay();
+        }
+      } catch(err) {
+        logSystem("Gagal membuat gambar, error: "+(err.message || err), "error");
+        div.innerHTML += "<div style='color:#c00; font-size:13px;'>Gagal mengunduh gambar</div>";
+        if (doneMarkImg) doneMarkImg();
+      }
+    })();
+  }
+}
+// -- Prompt History and Rendering
+function savePromptToHistory(item) {
+  const history = JSON.parse(localStorage.getItem("promptHistory_v2")) || [];
+  history.unshift({
+    origPrompt: item.origPrompt,
+    translatedPrompt: item.translatedPrompt,
+    model: item.model,
+    aspect: item.aspect,
+    style: item.style||"",
+    lens: item.lens||"",
+    thumb: item.thumb||"",
+    seedArr: item.seedArr||[]
+  });
+  if (history.length > 5) history.length = 5;
+  localStorage.setItem("promptHistory_v2", JSON.stringify(history));
+  renderPromptHistory();
+  logSystem("Prompt berhasil disimpan ke riwayat.", "success");
+}
+function renderPromptHistory() {
+  const history = JSON.parse(localStorage.getItem("promptHistory_v2")) || [];
+  const container = document.getElementById("promptHistory");
+  container.innerHTML = "";
+
+  history.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+
+    const img = document.createElement("img");
+    img.className = "history-thumbnail";
+    img.src = item.thumb ? item.thumb : "https://cdn.pixabay.com/photo/2012/04/18/13/21/user-36394_1280.png";
+    img.alt = "thumb";
+    img.onerror = () => img.src = "https://cdn.pixabay.com/photo/2012/04/18/13/21/user-36394_1280.png";
+
+    const details = document.createElement("div");
+    details.className = "history-details";
+    details.innerHTML = `
+      <div class="history-prompts">
+        <span class="history-original"><b>ASLI:</b> ${sanitize(item.origPrompt)}</span>
+        <br>
+        <span class="history-english"><b>ENG:</b> ${sanitize(item.translatedPrompt)}</span>
+      </div>
+      <div class="history-meta">
+        <span><b>Model:</b> ${MODEL_TO_STRING[item.model] || item.model}</span> |
+        <span><b>Aspect:</b> ${item.aspect}</span><br>
+        <span><b>Style:</b> ${item.style||'-'}</span> |
+        <span><b>Angela Kamera:</b> ${item.lens||'-'}</span>
+        <br>
+        <span><b>Seed:</b> ${item.seedArr && item.seedArr.length ? item.seedArr.map(s => `<code>${s}</code>`).join(", ") : '-'}</span>
+      </div>
+    `;
+
+    const actions = document.createElement("div");
+    actions.className = "history-actions";
+
+    const btnDelete = document.createElement("button");
+    btnDelete.className = "history-delete";
+    btnDelete.title = "Hapus dari riwayat";
+    btnDelete.textContent = "X";
+    btnDelete.onclick = (e) => {
+      e.stopPropagation();
+      if (confirm("Hapus prompt ini dari riwayat?")) {
+        history.splice(index, 1);
+        localStorage.setItem("promptHistory_v2", JSON.stringify(history));
+        renderPromptHistory();
+        logSystem("Riwayat prompt dihapus.", "warn");
+      }
+    };
+
+    const btnCopy = document.createElement("button");
+    btnCopy.title = "Copy prompt (asli)";
+    btnCopy.innerHTML = "📄";
+    btnCopy.onclick = (e) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(item.origPrompt||"");
+      btnCopy.innerHTML = "&#9745;&#65039;";
+      setTimeout(()=>{btnCopy.innerHTML="&#9989;"},900);
+      logSystem("Prompt berhasil dicopy ke clipboard.", "info");
+    };
+
+    const btnRepeat = document.createElement("button");
+    btnRepeat.title = "Ulangi/generate ulang prompt ini dengan setting sama";
+    btnRepeat.innerHTML = "🔄";
+    btnRepeat.onclick = (e) => {
+      e.stopPropagation();
+      handleGenerate({
+        prompt: item.translatedPrompt,
+        origPrompt: item.origPrompt,
+        model: item.model,
+        aspect: item.aspect,
+        style: item.style,
+        lens: item.lens,
+        watermarkText: "",
+        noWatermark: false,
+        seedArr: item.seedArr
+      });
+      logSystem("Prompt dari riwayat digenerate ulang.", "info");
+    };
+
+    actions.appendChild(btnRepeat);
+    actions.appendChild(btnCopy);
+    actions.appendChild(btnDelete);
+
+    div.appendChild(img);
+    div.appendChild(details);
+    div.appendChild(actions);
+
+    div.onclick = (e) => {
+      if (e.target === btnCopy || e.target === btnDelete || e.target === btnRepeat) return;
+      document.getElementById("promptInput").value = item.origPrompt;
+      if (item.model) document.getElementById("modelSelect").value = item.model;
+      if (item.aspect) document.getElementById("aspectRatioSelect").value = item.aspect;
+      if (item.style) document.getElementById("styleSelect").value = item.style;
+      if (item.lens) document.getElementById("lensSelect").value = item.lens;
+      logSystem("User memilih prompt dari riwayat untuk diedit.", "info");
+    };
+
+    container.appendChild(div);
+  });
+}
+function sanitize(str) {
+  return (str || "").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+renderPromptHistory();
+
+// =========== FEED FUNCTION ===========
+function timeAgo(dateStr) {
+  let date =
+    typeof dateStr === "string"
+      ? new Date(dateStr.replace(/Z$/, ""))
+      : new Date();
+  let now = new Date();
+  let seconds = Math.floor((now - date) / 1000);
+  if (seconds < 60) return seconds + " detik lalu";
+  let minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return minutes + " menit lalu";
+  let hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours + "jam lalu";
+  let days = Math.floor(hours / 24);
+  return days + " hari lalu";
+}
+
+
+
+function connectImageFeed() {
+  const feedUrl = "https://image.pollinations.ai/feed";
+  const eventSource = new EventSource(feedUrl);
+  const feedContainer = document.getElementById("image-feed-output");
+
+  let queue = [];
+  let isDisplaying = false;
+
+  function showNextImage() {
+    if (queue.length === 0 || isDisplaying) return;
+    isDisplaying = true;
+
+    const imageData = queue.shift();
+    if (!imageData.imageURL) {
+      isDisplaying = false;
+      return;
+    }
+
+    const div = document.createElement("div");
+    div.className = "feed-image-card";
+    div.innerHTML = `
+      <img src="${imageData.imageURL}" alt="${imageData.prompt || "Generated Image"}">
+      <div class="feed-image-info">
+        <b>Prompt:</b> 
+        <span class="prompt-text">${imageData.prompt ? imageData.prompt.replace(/</g,"&lt;") : "N/A"}</span>
+        ${imageData.creator ? '<br><b>By:</b> <span>' + imageData.creator.replace(/</g,"&lt;") + '</span>' : ""}
+        ${imageData.model ? '<br><b>Model:</b> <span>' + imageData.model.replace(/</g,"&lt;") + '</span>' : ""}
+        <div class="feed-time">${imageData.createdAt ? timeAgo(imageData.createdAt) : ""}</div>
+        <button onclick="copyPrompt(this)">📄 Copy Prompt</button>
+        <a href="${imageData.imageURL}" download target="_blank"><button>&#11015;&#65039; Unduh Gambar</button></a>
+      </div>
+    `;
+
+    feedContainer.innerHTML = "";
+    feedContainer.appendChild(div);
+
+    setTimeout(() => {
+      isDisplaying = false;
+      showNextImage();
+    }, 30000);
+  }
+
+  eventSource.onmessage = function (event) {
+    try {
+      const imageData = JSON.parse(event.data);
+      queue.push(imageData);
+      showNextImage();
+    } catch (e) {
+      console.error("Failed to parse image feed data:", event.data, e);
+    }
+  };
+
+  eventSource.onerror = function () {
+    logSystem("Feed gambar publik tidak dapat terhubung.", "warn");
+    eventSource.close();
+  };
+
+  eventSource.onopen = function () {
+    logSystem("Terhubung ke feed gambar publik!", "success");
+  };
+
+  window.addEventListener('beforeunload', () => eventSource.close());
+}
+
+function copyPrompt(button) {
+  const promptText = button.parentElement.querySelector(".prompt-text").innerText;
+  navigator.clipboard.writeText(promptText).then(() => {
+    button.textContent = "Copied";
+    setTimeout(() => {
+      button.textContent = "Copy Prompt";
+    }, 2000);
+  });
+}
+connectImageFeed();
+
+</script>
+<!-- FONT AWESOME FOR ICONS (head or before </body>) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

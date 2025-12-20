@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chatbot AI</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+body { font-family: Inter, sans-serif; background:#f3f4f6; }
+.chat { height:75vh; overflow-y:auto; }
+.chat::-webkit-scrollbar { display:none; }
+.spinner { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.user { background:#3b82f6; color:#fff; border-bottom-right-radius:0; }
+.assistant { background:#e5e7eb; color:#1f2937; border-bottom-left-radius:0; }
+</style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+
+<div class="w-full max-w-3xl bg-white rounded-2xl shadow-xl flex flex-col h-[92vh]">
+
+<!-- HEADER -->
+<div class="p-4 border-b space-y-3">
+
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-xl font-bold">Chatbot AI</h1>
+            <p class="text-xs text-gray-500">MirongDev</p>
+        </div>
+
+        <!-- API STATUS -->
+        <div class="flex items-center gap-2 text-sm">
+            <span id="api-dot" class="w-3 h-3 rounded-full bg-gray-400"></span>
+            <span id="api-text">Checking API</span>
+        </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="flex gap-3 text-sm">
+
+        <!-- LANGUAGE -->
+        <select id="language" class="border rounded-lg px-3 py-1">
+            <option value="id">Bahasa Indonesia</option>
+            <option value="en">English</option>
+        </select>
+
+        <!-- MODEL -->
+        <select id="model" class="border rounded-lg px-3 py-1">
+            <option value="openai-fast">openai-fast</option>
+            <option value="openai">openai</option>
+            <option value="mistral">mistral</option>
+        </select>
+
+    </div>
+</div>
+
+<!-- CHAT -->
+<div id="chat" class="chat flex-grow p-5 space-y-4 flex flex-col"></div>
+
+<!-- INPUT -->
+<div class="p-4 border-t flex items-center gap-2">
+    <input id="input" placeholder="Ketik pesan..."
+           class="flex-grow p-3 rounded-xl border focus:ring-2 focus:ring-blue-500">
+
+    <button id="send"
+            class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center">
+        <span id="sendIcon">➤</span>
+        <svg id="loadingIcon" class="spinner w-6 h-6 hidden" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
+            <path d="M4 12a8 8 0 018-8" fill="currentColor"/>
+        </svg>
+    </button>
+
+    <button id="reset" class="w-12 h-12 bg-red-500 text-white rounded-xl">↺</button>
+</div>
+
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const resetBtn = document.getElementById('reset');
+const sendIcon = document.getElementById('sendIcon');
+const loadingIcon = document.getElementById('loadingIcon');
+const languageSelect = document.getElementById('language');
+const modelSelect = document.getElementById('model');
+const apiDot = document.getElementById('api-dot');
+const apiText = document.getElementById('api-text');
+
+const API = "https://text.pollinations.ai/prompt/";
+
+let controller = null;
+let isLoading = false;
+
+/* ---------- SYSTEM PROMPT ---------- */
+function getSystemPrompt() {
+    if (languageSelect.value === 'en') {
+        return encodeURIComponent(
+            "You are a smart AI assistant. Answer concisely and accurately. Created by MirongDev."
+        );
+    }
+    return encodeURIComponent(
+        "Anda adalah asisten AI yang menjawab ringkas, akurat, dan sopan dalam bahasa Indonesia. Dibuat oleh MirongDev."
+    );
+}
+
+/* ---------- UI ---------- */
+function add(role, text) {
+    const row = document.createElement('div');
+    row.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start');
+
+    const bubble = document.createElement('div');
+    bubble.className = 'rounded-2xl p-3 shadow max-w-xl ' + (role === 'user' ? 'user' : 'assistant');
+    bubble.textContent = text;
+
+    row.appendChild(bubble);
+    chat.appendChild(row);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function setLoading(state) {
+    isLoading = state;
+    sendIcon.classList.toggle('hidden', state);
+    loadingIcon.classList.toggle('hidden', !state);
+}
+
+/* ---------- SEND ---------- */
+async function sendMessage() {
+    if (isLoading) return;
+
+    const text = input.value.trim();
+    if (!text) return;
+
+    add('user', text);
+    input.value = '';
+
+    controller = new AbortController();
+    setLoading(true);
+
+    try {
+        const url =
+            API +
+            encodeURIComponent(text) +
+            `?model=${modelSelect.value}&system=${getSystemPrompt()}`;
+
+        const res = await fetch(url, { signal: controller.signal });
+        const ai = await res.text();
+        add('assistant', ai);
+
+    } catch (e) {
+        if (e.name !== 'AbortError') {
+            add('assistant', 'Terjadi kesalahan.');
+        }
+    } finally {
+        setLoading(false);
+        controller = null;
+    }
+}
+
+/* ---------- CANCEL ---------- */
+function cancelRequest() {
+    if (!isLoading || !controller) return;
+    controller.abort();
+    setLoading(false);
+    add('assistant', '⛔ Dibatalkan.');
+}
+
+/* ---------- API STATUS ---------- */
+async function checkAPI() {
+    try {
+        const res = await fetch(API + "ping?model=openai-fast");
+        apiDot.className = "w-3 h-3 rounded-full bg-green-500";
+        apiText.textContent = "API Online";
+    } catch {
+        apiDot.className = "w-3 h-3 rounded-full bg-red-500";
+        apiText.textContent = "API Offline";
+    }
+}
+
+/* ---------- EVENTS ---------- */
+sendBtn.onclick = () => isLoading ? cancelRequest() : sendMessage();
+input.addEventListener('keydown', e => e.key === 'Enter' && sendMessage());
+
+resetBtn.onclick = () => {
+    chat.innerHTML = '';
+    add('assistant', 'Halo! Saya chatbot buatan MirongDev.');
+};
+
+window.onload = () => {
+    resetBtn.click();
+    checkAPI();
+};
+</script>
+
+</body>
+</html>

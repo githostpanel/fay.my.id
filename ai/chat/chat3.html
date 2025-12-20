@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .chat-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .messages {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .user {
+            background-color: #daf8da;
+            text-align: right;
+        }
+        .bot {
+            background-color: #e9e9e9;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <h2>Chatbot AI</h2>
+        <div id="messages" class="messages"></div>
+        <input type="text" id="userInput" placeholder="Ketik pesan..." />
+        <button onclick="sendMessage()">Kirim</button>
+    </div>
+
+    <script>
+        const apiUrl = 'https://ai.hackclub.com/chat/completions';
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        // Menampilkan pesan dari pengguna dan bot
+        function displayMessage(content, sender) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender);
+            messageDiv.innerText = content;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll ke bawah
+        }
+
+        // Mengirim pesan ke API dan mendapatkan balasan
+// Mengirim pesan ke API dan mendapatkan balasan
+async function sendMessage() {
+    const userMessage = document.getElementById('userInput').value;
+    if (!userMessage.trim()) return; // Jika input kosong, tidak kirim pesan
+
+    // Menampilkan pesan pengguna di chat
+    displayMessage(userMessage, 'user');
+    document.getElementById('userInput').value = ''; // Mengosongkan input field
+
+    const data = {
+        messages: [
+            {
+                role: "user",
+                content: userMessage,
+            }
+        ],
+    };
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data),
+        });
+
+        const responseData = await response.json();
+
+        // Mendapatkan balasan dari bot
+        let botMessageRaw = responseData.choices[0].message.content;
+
+        // Memfilter bagian <think> jika ada
+        const botMessage = botMessageRaw.replace(/<think>.*?<\/think>/gs, '').trim();
+
+        // Menampilkan balasan dari bot
+        displayMessage(botMessage, 'bot');
+    } catch (error) {
+        console.error('Terjadi kesalahan:', error);
+        displayMessage('Terjadi kesalahan. Silakan coba lagi.', 'bot');
+    }
+}
+
+
+        // Menambahkan fitur enter untuk mengirim pesan
+        document.getElementById('userInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+
+</body>
+</html>

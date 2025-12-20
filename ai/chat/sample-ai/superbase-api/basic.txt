@@ -1,0 +1,30 @@
+https://simplify-eloquent-ai.lovable.app/
+
+
+curl --location 'https://edoyuwjhdztxlktqmhsl.supabase.co/functions/v1/explain' \
+--header 'Authorization: Bearer YOUR_TOKEN' \
+--header 'Content-Type: application/json' \
+--data '{
+  "prompt": "saya akan membantu kamu dalam belajar"
+}'
+
+
+
+{
+    "success": true,
+    "reply": "Hai teman kecil! 👋 Artinya, \"Aku akan membantumu belajar.\" Sama seperti saat kamu belajar naik sepeda 🚲 atau menggambar, aku akan ada di sana untuk menemanimu dan membuat belajar jadi mudah dan menyenangkan! 😊",
+    "suggestions": ["Bagaimana kamu bisa membantuku belajar?", "Bisakah kamu membantuku belajar tentang hewan?", "Apa yang paling seru untuk dipelajari?"]
+}
+
+
+
+
+https://toneshift-ai.lovable.app/
+curl --location 'https://nofboxbcxttyvyshaibo.supabase.co/functions/v1/tone-shift' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmJveGJjeHR0eXZ5c2hhaWJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTcwOTIsImV4cCI6MjA4MDU5MzA5Mn0.D5g8zLMu7fDEMF-l3j40tJWehgUHTUrXAlQCz62vXeo' \
+--header 'Content-Type: application/json' \
+--data '{
+  "text": "saya akan membantu kamu dalam belajar",
+  "tone": "Friendly"
+}'
+

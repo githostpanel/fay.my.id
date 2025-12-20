@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gallery Foto</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/gallery.css">
+</head>
+<body>
+
+<header>
+  <h1>Gallery Foto</h1>
+  <p>Interaktif • Lazy Load • Filter • Modal Preview</p>
+</header>
+
+<div class="controls">
+  <div class="search">
+    <input type="text" id="q" placeholder="Cari caption atau tag...">
+  </div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<main class="grid-wrap">
+  <div class="grid" id="grid"></div>
+  <div class="loadmore-wrap">
+    <button id="btnLoadMore" class="btn-load">Load More</button>
+  </div>
+</main>
+
+<!-- Modal Viewer -->
+<div id="overlay" class="overlay" aria-hidden="true">
+  <div class="viewer">
+    <button class="btn-close" id="btnClose">✕</button>
+    <button class="btn-nav nav-left" id="btnPrev">◀</button>
+    <div class="frame">
+      <div class="img-wrapper loading">
+        <img id="viewerImg" alt="">
+      </div>
+    </div>
+    <button class="btn-nav nav-right" id="btnNext">▶</button>
+    <div class="index-indicator" id="idxIndicator">0 / 0</div>
+    <div class="caption" id="viewerCaption"></div>
+  </div>
+</div>
+
+<script src="assets/js/data-gallery.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>

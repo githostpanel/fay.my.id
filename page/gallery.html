@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Final Gallery Foto — Interaktif & Lazy Load</title>
+  <style>
+    :root{
+      --bg:#0a0a0a; --card:#0f1115; --muted:#9ca3af; --accent:#7c3aed;
+      --gap:12px; --batch:6; --duration:320ms;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,system-ui,Arial; background:var(--bg); color:#e6edf3;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    header{padding:20px 18px; max-width:1100px;margin:0 auto; display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{margin:0;font-size:18px}
+    .controls{max-width:1100px;margin:0 auto;padding:0 18px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .search {
+      flex:1; min-width:200px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04);
+      padding:8px 12px;border-radius:10px;display:flex;align-items:center;gap:8px;
+    }
+    .search input{background:transparent;border:0;outline:none;color:inherit;width:100%;font-size:14px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,0.02);color:var(--muted);font-size:13px;cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
+    .chip.active{background:linear-gradient(90deg,var(--accent),#ec4899);color:white;transform:translateY(-2px);border:none}
+
+    /* grid */
+    .grid-wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--gap)}
+    .card{background:var(--card);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;display:flex;flex-direction:column;min-height:140px}
+    .thumb{width:100%;height:140px;object-fit:cover;display:block;background:linear-gradient(90deg,#0c0c0c,#111)}
+    .meta{padding:10px 12px;font-size:14px;color:var(--muted);line-height:1.2}
+    .tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+    .tag{font-size:11px;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted)}
+
+    /* loading placeholder shimmer */
+    .placeholder{position:relative;overflow:hidden}
+    .placeholder::after{
+      content:'';position:absolute;inset:0;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      transform:translateX(-100%);animation: shimmer 1.2s linear infinite;
+      opacity:0.6;
+    }
+    @keyframes shimmer{to{transform:translateX(100%)}}
+    img.lazy{filter:blur(10px);transition:filter 430ms ease, transform 320ms ease;transform:scale(1.02)}
+    img.lazy.loaded{filter:blur(0);transform:scale(1)}
+
+    /* load more button */
+    #loadMoreWrap{display:flex;justify-content:center;margin:20px 0}
+    #loadMoreBtn {
+      position: relative;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: linear-gradient(90deg,var(--accent),#ec4899);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.3s;
+    }
+    #loadMoreBtn.loading { opacity:0.7; pointer-events:none; }
+    #loadMoreBtn .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+    #loadMoreBtn.loading .spinner { display:inline-block; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+
+    /* modal */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;transition:opacity var(--duration) ease;z-index:1200}
+    .overlay.open{opacity:1;visibility:visible}
+    .viewer{position:relative;max-width:1200px;width:100%;max-height:92vh;border-radius:12px;display:flex;align-items:center;justify-content:center}
+    .viewer .frame{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+    .img-wrapper{position:relative;display:inline-block;max-width:100%;max-height:86vh;border-radius:10px;overflow:hidden;background:#111}
+    .img-wrapper.loading::after{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 20%, rgba(255,255,255,0) 40%);
+      animation:shimmer 1.2s linear infinite;opacity:0.5;
+    }
+    .viewer img{max-width:100%;max-height:86vh;border-radius:0;box-shadow:0 20px 50px rgba(0,0,0,0.6);opacity:0;transform:scale(0.98);transition:opacity 280ms ease, transform 280ms ease;display:block}
+    .viewer img.show{opacity:1;transform:scale(1)}
+    .btn-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.04);color:#fff;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:6}
+    .btn-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.45);border:none;color:#fff;padding:12px;border-radius:10px;cursor:pointer;z-index:6}
+    .nav-left{left:12px}
+    .nav-right{right:12px}
+    .btn-nav.disabled{opacity:.25;pointer-events:none}
+    .caption{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;color:#fff;font-size:14px;opacity:0.95;z-index:6}
+    .index-indicator{position:absolute;left:14px;top:16px;color:var(--muted);font-size:13px;z-index:6}
+
+    @media (max-width:700px){
+      .nav-left{left:8px}
+      .nav-right{right:8px}
+      .viewer img{max-height:76vh}
+      .caption{font-size:13px}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Final Gallery Foto</h1>
+  <div style="opacity:.85;font-size:13px">Filter • Load More • Lazy Load • Modal Viewer</div>
+</header>
+
+<div class="controls">
+  <div class="search"><input id="q" placeholder="Cari caption atau tag..."></div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<main class="grid-wrap">
+  <div class="grid" id="grid"></div>
+  <div id="loadMoreWrap">
+    <button id="loadMoreBtn"><span class="spinner"></span><span class="label">Load More</span></button>
+  </div>
+</main>
+
+<!-- Modal -->
+<div id="overlay" class="overlay">
+  <div class="viewer">
+    <button class="btn-close" id="btnClose">✕</button>
+    <button class="btn-nav nav-left" id="btnPrev">◀</button>
+    <div class="frame"><div class="img-wrapper loading"><img id="viewerImg"></div></div>
+    <button class="btn-nav nav-right" id="btnNext">▶</button>
+    <div class="index-indicator" id="idxIndicator">0 / 0</div>
+    <div class="caption" id="viewerCaption"></div>
+  </div>
+</div>
+
+<script>
+const imagesData = [
+  {id:'manual1',title:'Pantai Tropis',caption:'Pantai biru',category:'nature',thumb:'https://picsum.photos/id/29/400/300',full:'https://picsum.photos/id/29/1200/900'},
+  {id:'manual2',title:'Kota Malam',caption:'Lampu neon',category:'city',thumb:'https://picsum.photos/id/1011/400/300',full:'https://picsum.photos/id/1011/1200/900'},
+  {id:'gen1',title:'Kodok Hijau',caption:'Kodok Hijau',category:'animals',thumb:'https://api.fay.my.id/ai/image/v1/prompt/kodok?width=400&height=300',full:'https://api.fay.my.id/ai/image/v1/prompt/kodok?width=1200&height=900'}
+];
+for (let i=1;i<=12;i++){
+  imagesData.push({id:'auto'+i,title:'Auto '+i,caption:'Prompt '+i,category:i%2===0?'nature':'city',thumb:`https://picsum.photos/seed/${i}/400/300`,full:`https://picsum.photos/seed/${i}/1200/900`});
+}
+
+const BATCH=6;let filteredIndices=imagesData.map((_,i)=>i),renderPointer=0;
+const grid=document.getElementById('grid');const loadMoreBtn=document.getElementById('loadMoreBtn');
+const qInput=document.getElementById('q');const chipsWrap=document.getElementById('chips');
+const overlay=document.getElementById('overlay'),viewerImg=document.getElementById('viewerImg'),viewerCaption=document.getElementById('viewerCaption');
+const btnClose=document.getElementById('btnClose'),btnPrev=document.getElementById('btnPrev'),btnNext=document.getElementById('btnNext'),idxIndicator=document.getElementById('idxIndicator');
+let currentModalPos=0;let lastActive=null;
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function createCard(i){const d=imagesData[i];const fig=document.createElement('article');fig.className='card placeholder';fig.dataset.idx=i;
+ const img=document.createElement('img');img.className='thumb lazy';img.alt=d.caption;img.dataset.src=d.thumb;
+ const meta=document.createElement('div');meta.className='meta';meta.innerHTML=`<strong style="color:#fff">${escapeHtml(d.title)}</strong><div>${escapeHtml(d.caption)}</div>`;
+ const tag=document.createElement('div');tag.className='tags';tag.innerHTML=`<span class="tag">${d.category}</span>`;meta.appendChild(tag);
+ fig.appendChild(img);fig.appendChild(meta);imgObserver.observe(img);return fig;}
+function loadNextBatch(){if(renderPointer>=filteredIndices.length)return;const end=Math.min(renderPointer+BATCH,filteredIndices.length);
+ const frag=document.createDocumentFragment();for(let i=renderPointer;i<end;i++){const card=createCard(filteredIndices[i]);frag.appendChild(card);
+ requestAnimationFrame(()=>setTimeout(()=>card.classList.add('visible'),40));}grid.appendChild(frag);renderPointer=end;
+ if(renderPointer>=filteredIndices.length)loadMoreBtn.style.display='none';}
+function applyFilter(){const q=qInput.value.toLowerCase();filteredIndices=imagesData.map((_,i)=>i).filter(i=>{
+ const d=imagesData[i];return (!activeTags.size||activeTags.has(d.category))&&(d.title+d.caption+d.category).toLowerCase().includes(q);});
+ grid.innerHTML='';renderPointer=0;loadMoreBtn.style.display='inline-flex';loadNextBatch();if(filteredIndices.length===0)grid.innerHTML='<div style="padding:28px;color:var(--muted)">Tidak ada gambar.</div>';}
+
+const imgObserver=new IntersectionObserver((es,obs)=>{es.forEach(e=>{if(!e.isIntersecting)return;const img=e.target;img.src=img.dataset.src;
+ img.onload=()=>{img.classList.add('loaded');img.parentElement.classList.remove('placeholder');};obs.unobserve(img);});},{rootMargin:'200px'});
+
+let activeTags=new Set();const allTags=[...new Set(imagesData.map(i=>i.category))];
+function renderChips(){chipsWrap.innerHTML='';const all=document.createElement('button');all.className='chip'+(activeTags.size===0?' active':'');all.textContent='Semua';
+ all.onclick=()=>{activeTags.clear();renderChips();applyFilter();};chipsWrap.appendChild(all);
+ allTags.forEach(t=>{const b=document.createElement('button');b.className='chip'+(activeTags.has(t)?' active':'');b.textContent=t;
+ b.onclick=()=>{activeTags.has(t)?activeTags.delete(t):activeTags.add(t);renderChips();applyFilter();};chipsWrap.appendChild(b);});}
+
+function openViewer(idx){currentModalPos=filteredIndices.indexOf(idx);if(currentModalPos<0)return;const d=imagesData[idx];lastActive=document.activeElement;
+ overlay.classList.add('open');document.body.style.overflow='hidden';viewerImg.classList.remove('show');const w=viewerImg.closest('.img-wrapper');w.classList.add('loading');
+ viewerImg.src=d.thumb;viewerCaption.textContent=d.caption;idxIndicator.textContent=`${currentModalPos+1} / ${filteredIndices.length}`;
+ const full=new Image();full.src=d.full;full.onload=()=>{viewerImg.src=full.src;w.classList.remove('loading');viewerImg.classList.add('show');};}
+function closeViewer(){overlay.classList.remove('open');document.body.style.overflow='';setTimeout(()=>viewerImg.src='',400);}
+function goPrev(){if(currentModalPos>0){openViewer(filteredIndices[--currentModalPos]);}}
+function goNext(){if(currentModalPos<filteredIndices.length-1){openViewer(filteredIndices[++currentModalPos]);}}
+
+grid.addEventListener('click',e=>{const c=e.target.closest('.card');if(!c)return;openViewer(Number(c.dataset.idx));});
+btnClose.onclick=closeViewer;btnPrev.onclick=goPrev;btnNext.onclick=goNext;
+document.addEventListener('keydown',e=>{if(!overlay.classList.contains('open'))return;if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')goPrev();if(e.key==='ArrowRight')goNext();});
+
+loadMoreBtn.addEventListener('click',()=>{loadMoreBtn.classList.add('loading');setTimeout(()=>{loadNextBatch();loadMoreBtn.classList.remove('loading');},600);});
+
+renderChips();applyFilter();
+qInput.addEventListener('input',()=>applyFilter());
+</script>
+</body>
+</html>

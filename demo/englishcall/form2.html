@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Pendaftaran Program Privat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Choices.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+</head>
+<body class="bg-gray-100 font-poppins">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md fixed w-full top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center py-4 px-6">
+      <div class="flex items-center space-x-2">
+        <img src="https://i0.wp.com/englishcall.id/wp-content/uploads/2022/02/english-call.png" alt="Logo" class="h-10">
+        <span class="font-bold text-lg hidden md:inline">English Call</span>
+      </div>
+      <nav class="hidden md:flex space-x-6 font-semibold text-gray-700">
+        <a href="programs.html" class="hover:text-purple-600">Program</a>
+        <a href="#daftar" class="hover:text-purple-600">Daftar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="pt-28 max-w-3xl mx-auto px-4 sm:px-6">
+
+    <section class="bg-white rounded-xl shadow-lg p-6 mb-16">
+      <h1 class="text-2xl font-bold mb-6 text-center">Form Pendaftaran Program Privat</h1>
+
+      <form id="formPendaftaran" class="space-y-4">
+
+        <!-- Nama -->
+        <div>
+          <label class="block font-semibold mb-1">Nama Lengkap</label>
+          <input type="text" name="nama" required class="w-full border border-gray-300 rounded-md px-3 py-2">
+        </div>
+
+        <!-- No WA -->
+        <div>
+          <label class="block font-semibold mb-1">Nomor WhatsApp</label>
+          <input type="text" name="wa" required class="w-full border border-gray-300 rounded-md px-3 py-2">
+        </div>
+
+        <!-- Program -->
+        <div>
+          <label class="block font-semibold mb-1">Program</label>
+          <select name="program" required class="w-full border border-gray-300 rounded-md px-3 py-2">
+            <option value="">Pilih Program</option>
+            <option value="pre-school">Private Pre-School</option>
+            <option value="tk">Private TK</option>
+            <option value="sd">Private SD</option>
+            <option value="smp">Private SMP</option>
+            <option value="sma">Private SMA</option>
+            <option value="kuliah">Private Kuliah</option>
+          </select>
+        </div>
+
+        <!-- Provinsi -->
+        <div>
+          <label class="block font-semibold mb-1">Provinsi</label>
+          <select id="provinsi" placeholder="Pilih Provinsi"></select>
+        </div>
+
+        <!-- Kota/Kabupaten -->
+        <div>
+          <label class="block font-semibold mb-1">Kota/Kabupaten</label>
+          <select id="kabupaten" placeholder="Pilih Kota/Kabupaten"></select>
+        </div>
+
+        <!-- Kecamatan -->
+        <div>
+          <label class="block font-semibold mb-1">Kecamatan</label>
+          <select id="kecamatan" placeholder="Pilih Kecamatan"></select>
+        </div>
+
+        <!-- Desa/Kelurahan -->
+        <div>
+          <label class="block font-semibold mb-1">Desa/Kelurahan</label>
+          <select id="desa" placeholder="Pilih Desa/Kelurahan"></select>
+        </div>
+
+        <!-- Metode Pembayaran -->
+        <div>
+          <label class="block font-semibold mb-1">Metode Pembayaran</label>
+          <select name="pembayaran" required class="w-full border border-gray-300 rounded-md px-3 py-2">
+            <option value="">Pilih Bank</option>
+            <option value="BCA">BCA</option>
+            <option value="BNI">BNI</option>
+            <option value="BRI">BRI</option>
+          </select>
+        </div>
+
+        <!-- Submit -->
+        <div>
+          <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 rounded-full hover:bg-red-600 transition-colors">
+            Kirim Pendaftaran ke WhatsApp
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+  <footer class="bg-white/50 py-6 mt-16 text-center text-sm text-gray-700">
+    &copy; 2025 English Call. All rights reserved.
+  </footer>
+
+  <script>
+    // Inisialisasi Choices.js
+    const provSelect = new Choices('#provinsi', {searchEnabled:true, shouldSort:false});
+    const kabSelect = new Choices('#kabupaten', {searchEnabled:true, shouldSort:false});
+    const kecSelect = new Choices('#kecamatan', {searchEnabled:true, shouldSort:false});
+    const desaSelect = new Choices('#desa', {searchEnabled:true, shouldSort:false});
+
+    // Load Provinsi
+    async function loadProvinsi() {
+      let halaman = 1;
+      let totalHalaman = 1;
+      do {
+        const res = await fetch(`https://api-nusakita.vercel.app/v2/provinsi?halaman=${halaman}`);
+        const data = await res.json();
+        data.data.forEach(p => provSelect.setChoices([{value: p.kode, label: p.nama}], 'value', 'label', false));
+        totalHalaman = data.pagination.total_halaman;
+        halaman++;
+      } while(halaman <= totalHalaman);
+    }
+    loadProvinsi();
+
+    // Event: Provinsi -> Kabupaten
+    provSelect.passedElement.element.addEventListener('change', async (e)=>{
+      kabSelect.clearChoices();
+      kecSelect.clearChoices();
+      desaSelect.clearChoices();
+      const kodeProv = e.detail.value;
+      if(!kodeProv) return;
+      const res = await fetch(`https://api-nusakita.vercel.app/v2/${kodeProv}/kab-kota`);
+      const data = await res.json();
+      data.data.forEach(k => kabSelect.setChoices([{value:k.kode,label:k.nama}],'value','label',false));
+    });
+
+    // Event: Kabupaten -> Kecamatan
+    kabSelect.passedElement.element.addEventListener('change', async (e)=>{
+      kecSelect.clearChoices();
+      desaSelect.clearChoices();
+      const kodeKab = e.detail.value;
+      if(!kodeKab) return;
+      const res = await fetch(`https://api-nusakita.vercel.app/v2/${kodeKab}/kecamatan`);
+      const data = await res.json();
+      data.data.forEach(kc => kecSelect.setChoices([{value:kc.kode,label:kc.nama}],'value','label',false));
+    });
+
+    // Event: Kecamatan -> Desa
+    kecSelect.passedElement.element.addEventListener('change', async (e)=>{
+      desaSelect.clearChoices();
+      const kodeKec = e.detail.value;
+      if(!kodeKec) return;
+      const res = await fetch(`https://api-nusakita.vercel.app/v2/${kodeKec}/desa-kel`);
+      const data = await res.json();
+      data.data.forEach(d => desaSelect.setChoices([{value:d.kode,label:d.nama}],'value','label',false));
+    });
+
+    // Kirim WA
+    document.getElementById('formPendaftaran').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const nama = form.nama.value;
+      const wa = form.wa.value.replace(/[^0-9]/g, '');
+      const program = form.program.value;
+      const prov = provSelect.getValue(true);
+      const kab = kabSelect.getValue(true);
+      const kec = kecSelect.getValue(true);
+      const desa = desaSelect.getValue(true);
+      const bayar = form.pembayaran.value;
+
+      const text = `Pendaftaran Program Privat\nNama: ${nama}\nProgram: ${program}\nAlamat: ${prov}, ${kab}, ${kec}, ${desa}\nMetode Bayar: ${bayar}`;
+      const waLink = `https://wa.me/${wa}?text=${encodeURIComponent(text)}`;
+      window.open(waLink, '_blank');
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bio Link — Fay Overlay</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: #e4e4e7;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    #hki_main_container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    #hki_blob {
+      background: linear-gradient(to right, #4f46e5, #ec4899);
+      height: 300px;
+      width: 300px;
+      border-radius: 50%;
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      animation: hki_rotate 20s infinite;
+      opacity: 0.7;
+      filter: blur(100px);
+      pointer-events: none;
+    }
+
+    #hki_blur_overlay {
+      backdrop-filter: blur(150px);
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    @keyframes hki_rotate {
+      from { transform: rotate(0deg) scale(1); }
+      to { transform: rotate(360deg) scale(1.2); }
+    }
+
+    .hki_content_wrapper {
+      text-align: center;
+      position: relative;
+      z-index: 3;
+      padding: 1rem;
+      max-width: 500px;
+    }
+
+    .hki_scramble_text {
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: -0.05em;
+      color: #fafafa;
+      min-height: 1.2em;
+    }
+
+    .hki_subtitle {
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      color: #a1a1aa;
+      margin: 0.5em 0 2em 0;
+    }
+
+    /* Tombol link ala Linktree */
+    .hki_links {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .hki_link_btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 1.5rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #fafafa;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .hki_link_btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* Sosmed bulat */
+    .hki_social_nav {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hki_magnetic_link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 55px;
+      height: 55px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: #e4e4e7;
+      text-decoration: none;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s;
+    }
+
+    .hki_magnetic_link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div id="hki_main_container">
+    <div id="hki_blob"></div>
+    <div id="hki_blur_overlay"></div>
+
+    <div class="hki_content_wrapper">
+      <h1 id="hki_scramble_text" class="hki_scramble_text"></h1>
+      <p class="hki_subtitle">Digital Craftsman & Creative Developer</p>
+
+      <!-- Link ala Linktree -->
+      <div class="hki_links">
+        <a href="https://youtube.com/" target="_blank" class="hki_link_btn">🎥 YouTube Channel</a>
+        <a href="https://github.com/" target="_blank" class="hki_link_btn">💻 GitHub Projects</a>
+        <a href="https://wa.me/628123456789" target="_blank" class="hki_link_btn">📱 WhatsApp</a>
+        <a href="mailto:your@email.com" class="hki_link_btn">✉️ Email Me</a>
+      </div>
+      
+      <!-- Ikon sosial -->
+      <nav class="hki_social_nav">
+        <a href="https://www.linkedin.com/in/hibranwar/" target="_blank" class="hki_magnetic_link">
+          <!-- LinkedIn -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" 
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+               <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 
+                        2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+               <rect x="2" y="9" width="4" height="12"></rect>
+               <circle cx="4" cy="4" r="2"></circle>
+          </svg>
+        </a>
+        <a href="https://instagram.com/hibranwar" target="_blank" class="hki_magnetic_link">
+          <!-- Instagram -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" 
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+               <path d="M16 11.37A4 4 0 1 1 12.63 8 
+                        4 4 0 0 1 16 11.37z"></path>
+               <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    const hki_scrambleElement = document.getElementById('hki_scramble_text');
+    const hki_blob = document.getElementById('hki_blob');
+
+    class HkiTextScramble {
+      constructor(hki_el) {
+        this.hki_el = hki_el;
+        this.hki_chars = '!<>-_\\/[]{}—=+*^?#________';
+        this.hki_update = this.hki_update.bind(this);
+      }
+
+      hki_setText(hki_newText) {
+        const hki_oldText = this.hki_el.innerText;
+        const hki_length = Math.max(hki_oldText.length, hki_newText.length);
+        const hki_promise = new Promise(hki_resolve => (this.hki_resolve = hki_resolve));
+        this.hki_queue = [];
+        for (let hki_i = 0; hki_i < hki_length; hki_i++) {
+          const hki_from = hki_oldText[hki_i] || '';
+          const hki_to = hki_newText[hki_i] || '';
+          const hki_start = Math.floor(Math.random() * 40);
+          const hki_end = hki_start + Math.floor(Math.random() * 40);
+          this.hki_queue.push({ hki_from, hki_to, hki_start, hki_end });
+        }
+        cancelAnimationFrame(this.hki_frameRequest);
+        this.hki_frame = 0;
+        this.hki_update();
+        return hki_promise;
+      }
+
+      hki_update() {
+        let hki_output = '';
+        let hki_complete = 0;
+        for (let hki_i = 0, hki_n = this.hki_queue.length; hki_i < hki_n; hki_i++) {
+          let { hki_from, hki_to, hki_start, hki_end, hki_char } = this.hki_queue[hki_i];
+          if (this.hki_frame >= hki_end) {
+            hki_complete++;
+            hki_output += hki_to;
+          } else if (this.hki_frame >= hki_start) {
+            if (!hki_char || Math.random() < 0.28) {
+              hki_char = this.hki_randomChar();
+              this.hki_queue[hki_i].hki_char = hki_char;
+            }
+            hki_output += `<span class="hki_dud">${hki_char}</span>`;
+          } else {
+            hki_output += hki_from;
+          }
+        }
+        this.hki_el.innerHTML = hki_output;
+        if (hki_complete === this.hki_queue.length) {
+          this.hki_resolve();
+        } else {
+          this.hki_frameRequest = requestAnimationFrame(this.hki_update);
+          this.hki_frame++;
+        }
+      }
+      
+      hki_randomChar() {
+        return this.hki_chars[Math.floor(Math.random() * this.hki_chars.length)];
+      }
+    }
+
+    const hki_initScramble = () => {
+      const hki_phrases = ['Fay Overlay', 'Achmad Ripai'];
+      const hki_fx = new HkiTextScramble(hki_scrambleElement);
+      let hki_counter = 0;
+      const hki_next = () => {
+        hki_fx.hki_setText(hki_phrases[hki_counter]).then(() => {
+          setTimeout(hki_next, 8000);
+        });
+        hki_counter = (hki_counter + 1) % hki_phrases.length;
+      };
+      hki_next();
+    };
+
+    const hki_initMagneticLinks = () => {
+      const hki_links = document.querySelectorAll('.hki_magnetic_link');
+      hki_links.forEach(hki_link => {
+        hki_link.addEventListener('mousemove', (e) => {
+          const hki_rect = hki_link.getBoundingClientRect();
+          const hki_x = e.clientX - hki_rect.left - hki_rect.width / 2;
+          const hki_y = e.clientY - hki_rect.top - hki_rect.height / 2;
+          hki_link.style.transform = `translate(${hki_x * 0.3}px, ${hki_y * 0.3}px)`;
+        });
+        hki_link.addEventListener('mouseleave', () => {
+          hki_link.style.transform = 'translate(0, 0)';
+        });
+      });
+    };
+
+    document.body.onpointermove = event => {
+      const { clientX, clientY } = event;
+      hki_blob.animate({
+        left: `${clientX}px`,
+        top: `${clientY}px`
+      }, { duration: 3000, fill: "forwards" });
+    };
+
+    hki_initScramble();
+    hki_initMagneticLinks();
+  </script>
+</body>
+</html>

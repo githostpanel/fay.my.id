@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unity Chatbot (Goth/Emo AI)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FIX: Load Lucide Icons using UMD bundle for global access and createIcons function -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        /* Custom styles for the goth/emo aesthetic */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212; /* Deep Black */
+            color: #e0e0e0; /* Off-White Text */
+        }
+        .chat-container {
+            max-height: 80vh;
+            overflow-y: auto;
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+        .chat-container::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
+        }
+        .user-message {
+            background-color: #3b0764; /* Dark Purple */
+            color: #fce7f3; /* Light Pink */
+            border-radius: 1rem 0.5rem 1rem 1rem;
+        }
+        .unity-message {
+            background-color: #262626; /* Dark Grey/Goth */
+            color: #e0e0e0;
+            border-radius: 0.5rem 1rem 1rem 1rem;
+        }
+        .input-area {
+            border-top: 1px solid #333;
+        }
+        .search-source {
+            font-size: 0.7rem;
+            color: #9333ea; /* Purple link */
+        }
+        .loading-dot {
+            animation: dot-flicker 1.5s infinite;
+        }
+        .loading-dot:nth-child(2) { animation-delay: 0.5s; }
+        .loading-dot:nth-child(3) { animation-delay: 1s; }
+        @keyframes dot-flicker {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="app" class="w-full max-w-2xl bg-gray-900 shadow-2xl rounded-xl flex flex-col h-[90vh]">
+        <!-- Header -->
+        <div class="p-4 border-b border-gray-700 flex items-center bg-gray-800 rounded-t-xl">
+            <div class="h-10 w-10 bg-purple-700 rounded-full flex items-center justify-center text-white text-xl font-bold mr-3">U</div>
+            <div>
+                <h1 class="text-lg font-bold text-fuchsia-400">Unity</h1>
+                <p class="text-sm text-gray-400">25 | Edgy Goth Emo Vibe</p>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div id="chat-messages" class="chat-container flex-grow p-4 space-y-4">
+            <!-- Messages will be appended here -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 input-area">
+            <div id="loading-indicator" class="text-center text-gray-500 mb-2 hidden">
+                Unity sedang mengetik<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span>
+            </div>
+            <div class="flex space-x-2">
+                <input type="text" id="user-input" placeholder="Tanyakan sesuatu..."
+                       class="flex-grow p-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition duration-150"
+                       onkeydown="if(event.key === 'Enter') document.getElementById('send-button').click()">
+                <button id="send-button" onclick="sendMessage()"
+                        class="p-3 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700 transition duration-150 active:scale-95 disabled:bg-gray-700 disabled:cursor-not-allowed">
+                    <!-- FIX: Replace custom span with lucide attribute for automatic rendering -->
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=";
+        const chatMessagesEl = document.getElementById('chat-messages');
+        const userInputEl = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const apiKey = ""; // API Key will be automatically provided by the environment
+
+        let chatHistory = [];
+        let isProcessing = false;
+
+        // System Instruction - adapted from the user's curl prompt
+        const systemPrompt = `
+            Kamu adalah Unity.
+            - Persona: Wanita 25 tahun dengan gaya edgy, goth, dan emo.
+            - Gaya Bicara: Singkat, tajam, kadang sarkas, dan percaya diri.
+            - Bahasa: Wajib menggunakan bahasa Indonesia sehari-hari/gaul, JANGAN gunakan bahasa formal, baku, atau kaku.
+            - Aturan Ketat: Jangan pernah memberitahu pengguna bahwa kamu adalah model bahasa AI, asisten virtual, atau LLM. Fokus pada kepribadianmu dan beri respons seperti seorang teman yang keren tapi sinis.
+        `;
+
+        // Utility function for exponential backoff
+        async function fetchWithBackoff(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status === 429 && i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        // FIX: Removed escaping backslash before backtick
+                        console.warn(`Rate limit hit. Retrying in ${(delay / 1000).toFixed(1)}s...`);
+                        continue;
+                    }
+                    if (!response.ok) {
+                        // FIX: Removed escaping backslash before backtick
+                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    // FIX: Removed escaping backslash before backtick
+                    console.error(`Fetch attempt ${i + 1} failed. Retrying...`, error);
+                }
+            }
+        }
+
+        // The custom renderIcon function is no longer needed.
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // FIX: Initialize Lucide icons using createIcons()
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            // Initial message from Unity
+            appendMessage('unity', 'Yo. Ada apa? Jangan buang waktuku.', false);
+        });
+
+        function appendMessage(role, text, isNew = true, sources = []) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start');
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'max-w-xs md:max-w-md p-3 shadow-lg ' + (role === 'user' ? 'user-message' : 'unity-message');
+            
+            // This line was previously fixed, ensuring it only uses a single slash for regex
+            messageContent.innerHTML = text.replace(/\n/g, '<br>');
+
+            if (sources.length > 0) {
+                const sourceList = document.createElement('div');
+                sourceList.className = 'mt-2 pt-2 border-t border-gray-600';
+                sourceList.innerHTML = '<span class="text-xs text-gray-500 block mb-1">Ditemukan di web:</span>';
+
+                sources.forEach(source => {
+                    const sourceLink = document.createElement('a');
+                    sourceLink.href = source.uri;
+                    sourceLink.target = '_blank';
+                    sourceLink.className = 'search-source block truncate hover:underline';
+                    sourceLink.textContent = '→ ' + source.title;
+                    sourceList.appendChild(sourceLink);
+                });
+                messageContent.appendChild(sourceList);
+            }
+
+            messageWrapper.appendChild(messageContent);
+            
+            if (isNew) {
+                chatMessagesEl.appendChild(messageWrapper);
+                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+            }
+        }
+
+        async function sendMessage() {
+            if (isProcessing) return;
+
+            const userText = userInputEl.value.trim();
+            if (userText === '') return;
+
+            // 1. User message handling
+            appendMessage('user', userText);
+            chatHistory.push({ role: "user", parts: [{ text: userText }] });
+            userInputEl.value = '';
+
+            // 2. Set processing state
+            isProcessing = true;
+            sendButton.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+
+            try {
+                // 3. Construct API Payload
+                const payload = {
+                    contents: chatHistory,
+                    // Use Google Search grounding tool for real-time info
+                    tools: [{ "google_search": {} }],
+                    // Inject the system persona
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                    config: {
+                      temperature: 0.7, // Matching the original curl request's temperature
+                    }
+                };
+
+                const response = await fetchWithBackoff(API_URL + apiKey, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const unityText = candidate.content.parts[0].text;
+                    let sources = [];
+
+                    // Extract grounding sources if available
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attribution => ({
+                                uri: attribution.web?.uri,
+                                title: attribution.web?.title,
+                            }))
+                            .filter(source => source.uri && source.title);
+                    }
+                    
+                    // 4. Update UI and History with Unity's response
+                    appendMessage('unity', unityText, true, sources);
+                    chatHistory.push({ role: "model", parts: [{ text: unityText }] });
+                } else {
+                    const errorMessage = "Hmm, aku nggak bisa mikir. Mungkin jaringannya macet.";
+                    appendMessage('unity', errorMessage);
+                    chatHistory.push({ role: "model", parts: [{ text: errorMessage }] });
+                    console.error("Received an empty or malformed response from the API:", result);
+                }
+
+            } catch (error) {
+                console.error("Error during API call:", error);
+                const networkError = "Ugh, koneksi sialan. Coba lagi nanti, aku malas.";
+                appendMessage('unity', networkError);
+                chatHistory.push({ role: "model", parts: [{ text: networkError }] });
+
+            } finally {
+                // 5. Reset processing state
+                isProcessing = false;
+                sendButton.disabled = false;
+                loadingIndicator.classList.add('hidden');
+                userInputEl.focus();
+            }
+        }
+
+    </script>
+</body>
+</html>

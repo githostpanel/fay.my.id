@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bio Link — Modern Scramble</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: #e4e4e7;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    /* Background blob */
+    #hki_blob {
+      background: linear-gradient(to right, #4f46e5, #ec4899);
+      height: 300px;
+      width: 300px;
+      border-radius: 50%;
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      animation: hki_rotate 20s infinite;
+      opacity: 0.6;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes hki_rotate {
+      from { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+      to { transform: translate(-50%, -50%) rotate(360deg) scale(1.2); }
+    }
+
+    /* Overlay blur */
+    #hki_blur_overlay {
+      backdrop-filter: blur(150px);
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Konten */
+    .hki_content_wrapper {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      padding: 4rem 1rem;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .hki_scramble_text {
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: -0.05em;
+      color: #fafafa;
+      min-height: 1.2em;
+      line-height: 1.2;
+    }
+
+    .hki_subtitle {
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      color: #a1a1aa;
+      margin: 1em 0 2em 0;
+    }
+
+    /* Tombol ala Linktree */
+    .hki_links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .hki_link_button {
+      display: block;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fafafa;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .hki_link_button:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+    }
+
+    /* Dud text scramble */
+    .hki_dud {
+      opacity: 0.5;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="hki_blob"></div>
+  <div id="hki_blur_overlay"></div>
+
+  <main class="hki_content_wrapper">
+    <h1 id="hki_scramble_text" class="hki_scramble_text"></h1>
+    <p class="hki_subtitle">Digital Craftsman & Creative Developer</p>
+
+    <!-- Tombol link ala Linktree -->
+    <div class="hki_links">
+      <a href="https://www.linkedin.com/in/hibranwar/" target="_blank" class="hki_link_button">LinkedIn</a>
+      <a href="https://instagram.com/hibranwar" target="_blank" class="hki_link_button">Instagram</a>
+      <a href="https://github.com/hibranwar" target="_blank" class="hki_link_button">GitHub</a>
+      <a href="mailto:email@domain.com" class="hki_link_button">Email</a>
+      <a href="https://wa.me/628123456789" target="_blank" class="hki_link_button">WhatsApp</a>
+    </div>
+  </main>
+
+  <script>
+    const hki_scrambleElement = document.getElementById('hki_scramble_text');
+    const hki_blob = document.getElementById('hki_blob');
+
+    class HkiTextScramble {
+      constructor(hki_el) {
+        this.hki_el = hki_el;
+        this.hki_chars = '!<>-_\\/[]{}—=+*^?#________';
+        this.hki_update = this.hki_update.bind(this);
+      }
+
+      hki_setText(hki_newText) {
+        const hki_oldText = this.hki_el.innerText;
+        const hki_length = Math.max(hki_oldText.length, hki_newText.length);
+        const hki_promise = new Promise(hki_resolve => (this.hki_resolve = hki_resolve));
+        this.hki_queue = [];
+        for (let hki_i = 0; hki_i < hki_length; hki_i++) {
+          const hki_from = hki_oldText[hki_i] || '';
+          const hki_to = hki_newText[hki_i] || '';
+          const hki_start = Math.floor(Math.random() * 40);
+          const hki_end = hki_start + Math.floor(Math.random() * 40);
+          this.hki_queue.push({ hki_from, hki_to, hki_start, hki_end });
+        }
+        cancelAnimationFrame(this.hki_frameRequest);
+        this.hki_frame = 0;
+        this.hki_update();
+        return hki_promise;
+      }
+
+      hki_update() {
+        let hki_output = '';
+        let hki_complete = 0;
+        for (let hki_i = 0, hki_n = this.hki_queue.length; hki_i < hki_n; hki_i++) {
+          let { hki_from, hki_to, hki_start, hki_end, hki_char } = this.hki_queue[hki_i];
+          if (this.hki_frame >= hki_end) {
+            hki_complete++;
+            hki_output += hki_to;
+          } else if (this.hki_frame >= hki_start) {
+            if (!hki_char || Math.random() < 0.28) {
+              hki_char = this.hki_randomChar();
+              this.hki_queue[hki_i].hki_char = hki_char;
+            }
+            hki_output += `<span class="hki_dud">${hki_char}</span>`;
+          } else {
+            hki_output += hki_from;
+          }
+        }
+        this.hki_el.innerHTML = hki_output;
+        if (hki_complete === this.hki_queue.length) {
+          this.hki_resolve();
+        } else {
+          this.hki_frameRequest = requestAnimationFrame(this.hki_update);
+          this.hki_frame++;
+        }
+      }
+
+      hki_randomChar() {
+        return this.hki_chars[Math.floor(Math.random() * this.hki_chars.length)];
+      }
+    }
+
+    const hki_initScramble = () => {
+      const hki_phrases = ['Fay Overlay', 'Achmad Ripai'];
+      const hki_fx = new HkiTextScramble(hki_scrambleElement);
+      let hki_counter = 0;
+      const hki_next = () => {
+        hki_fx.hki_setText(hki_phrases[hki_counter]).then(() => {
+          setTimeout(hki_next, 8000);
+        });
+        hki_counter = (hki_counter + 1) % hki_phrases.length;
+      };
+      hki_next();
+    };
+
+    // Blob mengikuti mouse
+    document.body.onpointermove = event => {
+      const { clientX, clientY } = event;
+      hki_blob.animate({
+        left: `${clientX}px`,
+        top: `${clientY}px`
+      }, { duration: 3000, fill: "forwards" });
+    }
+
+    hki_initScramble();
+  </script>
+</body>
+</html>

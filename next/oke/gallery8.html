@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gallery Foto — Load More + Filter</title>
+  <style>
+    :root{
+      --bg:#0a0a0a; --card:#0f1115; --muted:#9ca3af; --accent:#7c3aed;
+      --gap:12px; --batch:6; --duration:320ms;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,system-ui,Arial; background:var(--bg); color:#e6edf3;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    header{padding:20px 18px; max-width:1100px;margin:0 auto; display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{margin:0;font-size:18px}
+    .controls{max-width:1100px;margin:0 auto;padding:0 18px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .search {
+      flex:1; min-width:200px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04);
+      padding:8px 12px;border-radius:10px;display:flex;align-items:center;gap:8px;
+    }
+    .search input{background:transparent;border:0;outline:none;color:inherit;width:100%;font-size:14px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,0.02);color:var(--muted);font-size:13px;cursor:pointer;border:1px solid rgba(255,255,255,0.02);transition:.2s}
+    .chip.active{background:linear-gradient(90deg,var(--accent),#ec4899);color:white;transform:translateY(-2px);border:none}
+
+    /* grid */
+    .grid-wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--gap)}
+    .card{background:var(--card);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;display:flex;flex-direction:column;min-height:140px;opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+    .card.visible{opacity:1;transform:translateY(0)}
+    .thumb{width:100%;height:140px;object-fit:cover;display:block;background:linear-gradient(90deg,#0c0c0c,#111)}
+    .meta{padding:10px 12px;font-size:14px;color:var(--muted);line-height:1.2}
+    .tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+    .tag{font-size:11px;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted)}
+
+    /* shimmer */
+    .placeholder{position:relative;overflow:hidden}
+    .placeholder::after{
+      content:'';position:absolute;inset:0;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      transform:translateX(-100%);animation: shimmer 1.2s linear infinite;opacity:0.6;
+    }
+    @keyframes shimmer{to{transform:translateX(100%)}}
+    img.lazy{filter:blur(10px);transition:filter 430ms ease, transform 320ms ease;transform:scale(1.02)}
+    img.lazy.loaded{filter:blur(0);transform:scale(1)}
+
+    /* load more */
+    #loadMore{margin:20px auto;display:block;padding:10px 20px;font-size:15px;border-radius:8px;border:none;cursor:pointer;background:var(--accent);color:#fff;transition:opacity .3s}
+    #loadMore:disabled{opacity:.6;cursor:not-allowed}
+    #spinner{display:none;margin:14px auto;border:4px solid rgba(255,255,255,0.2);border-top:4px solid #fff;border-radius:50%;width:36px;height:36px;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Gallery Foto</h1>
+  <div style="opacity:.85;font-size:13px">Load More + Filter + Lazy Load</div>
+</header>
+
+<div class="controls">
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.7"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <input id="q" placeholder="Cari caption atau tag...">
+  </div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<main class="grid-wrap">
+  <div class="grid" id="grid"></div>
+  <button id="loadMore">Load More</button>
+  <div id="spinner"></div>
+</main>
+
+<script>
+const imagesData = [];
+for (let i=1;i<=120;i++){
+  imagesData.push({
+    id: i,
+    title: `Foto ${i}`,
+    caption: `Ini gambar nomor ${i}`,
+    category: i%2===0?'nature':'city',
+    thumb:`https://picsum.photos/id/${i*5}/400/300`,
+    full:`https://picsum.photos/id/${i*5}/1200/900`
+  });
+}
+
+const BATCH = 6;
+let filteredIndices = imagesData.map((_,i)=>i);
+let renderPointer = 0;
+
+const grid=document.getElementById('grid');
+const loadBtn=document.getElementById('loadMore');
+const spinner=document.getElementById('spinner');
+const qInput=document.getElementById('q');
+const chipsWrap=document.getElementById('chips');
+
+/* chips filter */
+const allTags=[...new Set(imagesData.map(d=>d.category))];
+let activeTags=new Set();
+function renderChips(){
+  chipsWrap.innerHTML='';
+  const all=document.createElement('button');
+  all.className='chip'+(activeTags.size===0?' active':'');
+  all.textContent='Semua';
+  all.onclick=()=>{activeTags.clear();renderChips();applyFilter(true)};
+  chipsWrap.appendChild(all);
+  allTags.forEach(tag=>{
+    const b=document.createElement('button');
+    b.className='chip'+(activeTags.has(tag)?' active':'');
+    b.textContent=tag;
+    b.onclick=()=>{
+      if(activeTags.has(tag)) activeTags.delete(tag); else activeTags.add(tag);
+      renderChips(); applyFilter(true);
+    };
+    chipsWrap.appendChild(b);
+  });
+}
+renderChips();
+
+/* filter + search */
+function applyFilter(reset=false){
+  const q=(qInput.value||'').toLowerCase();
+  const tags=[...activeTags];
+  filteredIndices=imagesData.map((_,i)=>i).filter(i=>{
+    const d=imagesData[i];
+    const tagOk=tags.length===0||tags.includes(d.category);
+    const txt=(d.title+d.caption+d.category).toLowerCase();
+    return tagOk && (q===''||txt.includes(q));
+  });
+  grid.innerHTML='';
+  renderPointer=0;
+  loadNextBatch();
+}
+qInput.addEventListener('input',()=>applyFilter(true));
+
+/* lazy image */
+const imgObserver=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const img=entry.target;
+      img.src=img.dataset.src;
+      img.onload=()=>{img.classList.add('loaded'); img.parentElement.classList.remove('placeholder');};
+      imgObserver.unobserve(img);
+    }
+  });
+});
+
+/* create card */
+function createCard(idx){
+  const d=imagesData[idx];
+  const fig=document.createElement('div');
+  fig.className='card placeholder';
+  fig.dataset.idx=idx;
+  const img=document.createElement('img');
+  img.className='thumb lazy';
+  img.dataset.src=d.thumb;
+  img.alt=d.caption;
+  imgObserver.observe(img);
+  const meta=document.createElement('div');
+  meta.className='meta';
+  meta.innerHTML=`<strong style="color:#fff">${d.title}</strong><div>${d.caption}</div><div class="tags"><span class="tag">${d.category}</span></div>`;
+  fig.append(img,meta);
+  return fig;
+}
+
+/* batch loader */
+function loadNextBatch(){
+  if(renderPointer>=filteredIndices.length) return;
+  spinner.style.display='block';
+  loadBtn.disabled=true;
+  setTimeout(()=>{
+    const end=Math.min(renderPointer+BATCH,filteredIndices.length);
+    for(let i=renderPointer;i<end;i++){
+      const card=createCard(filteredIndices[i]);
+      grid.appendChild(card);
+      requestAnimationFrame(()=>setTimeout(()=>card.classList.add('visible'),40));
+    }
+    renderPointer=end;
+    spinner.style.display='none';
+    loadBtn.disabled=false;
+    if(renderPointer>=filteredIndices.length) loadBtn.style.display='none';
+    else loadBtn.style.display='block';
+  },600); // simulasi loading
+}
+loadBtn.addEventListener('click',loadNextBatch);
+
+/* init */
+applyFilter(true);
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+	"app": {
+    "version": 1,
+    "status": true,
+    "allow_save_book_in_storage": true,
+    "swipe_horizontal_reading_book": true,
+    "show_scroll_handle_reading_book": true,
+    "custom_table_of_contents": false,
+    "ebook_pdf_url": "https://static.buku.kemdikbud.go.id/content/pdf/bukuteks/k13/bukusiswa/Kristen%20Kelas%20IX%20Isi%20BS%20press.pdf",
+    "ebook_description": "<center><h3>Ruang Belajar Digital </h3></center>",
+    "about_app": "<center><h3>Ruang Belajar Digital </h3></center><p>Selamat menikamti aplikasi kami, aplikasi ini didedikasi untuk para pembelajar,agar terus belajar tanpa batas dimana pun</p>",
+    "privacy_policy_url": "https://karyamarketing-dev.web.app/privacy-policy.html",
+    "more_apps_url": "https://play.google.com/store/apps/dev?id=5822353148044560794",
+    "update_message": "",
+    "update_button": "",
+    "update_url": ""
+  },
+  "ads": {
+    "ad_status": 1,
+    "ad_type": "admob",
+    "backup_ads": "none",
+    "interstitial_hold_in_seconds": 0,
+    "interstitial_ad_interval": 1,
+    "admob_publisher_id": "pub-3940256099942544",
+    "admob_app_id": "ca-app-pub-3940256099942544~3347511713",
+    "admob_banner_unit_id": "ca-app-pub-3940256099942544/6300978111",
+    "admob_interstitial_unit_id": "ca-app-pub-3940256099942544/1033173712",
+    "admob_native_unit_id": "ca-app-pub-3940256099942544/2247696110",
+    "admob_app_open_ad_unit_id": "ca-app-pub-3940256099942544/9257395921",
+    "startapp_app_id": "206562444",
+    "unity_game_id": "4089993",
+    "unity_banner_placement_id": "banner",
+    "unity_interstitial_placement_id": "video",
+    "applovin_banner_ad_unit_id": "0",
+    "applovin_interstitial_ad_unit_id": "0",
+    "applovin_native_ad_manual_unit_id": "0",
+    "applovin_banner_zone_id": "0",
+    "applovin_interstitial_zone_id": "0",
+    "mopub_banner_ad_unit_id": "b195f8dd8ded45fe847ad89ed1d016da",
+    "mopub_interstitial_ad_unit_id": "24534e1901884e398f1253216226017e"
+  },
+  "notification": {
+    "fcm_notification_topic": "single_ebook_app_topic",
+    "onesignal_app_id": "bd61d657-cdf3-4d73-a591-365bd7989eb5"
+  }
+}

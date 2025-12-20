@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery Interaktif</title>
+<style>
+/* === Base === */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f8f8f8;
+  color: #333;
+}
+h1 {
+  text-align: center;
+  margin: 20px 0;
+}
+
+/* === Gallery Grid === */
+.gallery {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem;
+  scroll-behavior: smooth;
+}
+.gallery::-webkit-scrollbar {
+  height: 10px;
+}
+.gallery::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 5px;
+}
+
+.card {
+  cursor: pointer;
+  text-align: center;
+}
+.card .img-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 66.66%; /* 3:2 aspect ratio */
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ddd;
+}
+.card .img-wrapper img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.card p {
+  margin: 8px 0 0;
+}
+
+/* === Shimmer Loader === */
+.img-wrapper.loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.4) 20%,
+    rgba(255,255,255,0) 40%
+  );
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* === Modal Viewer === */
+.viewer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 1000;
+}
+.viewer.open { display: flex; }
+.viewer .frame {
+  max-width: 90%;
+  max-height: 90%;
+  text-align: center;
+}
+.viewer .img-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #222;
+}
+.viewer .img-wrapper img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  display: block;
+}
+.viewer .caption {
+  color: #fff;
+  margin-top: 8px;
+}
+.viewer .index-indicator {
+  color: #aaa;
+  font-size: 0.9em;
+  margin-top: 4px;
+}
+.viewer .close,
+.viewer .nav {
+  position: absolute;
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  top: 20px;
+}
+.viewer .close { right: 20px; }
+.viewer .nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.viewer .nav.prev { left: 20px; }
+.viewer .nav.next { right: 20px; }
+.viewer .nav.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Gallery Interaktif</h1>
+
+<!-- === Gallery === -->
+<div class="gallery" id="gallery">
+  <!-- manual -->
+  <div class="card" data-caption="Kodok Hijau">
+    <div class="img-wrapper loading">
+      <img data-src="https://tools.fay.my.id/ai/generator/prompt/jokowi?width=400&height=300" alt="Kodok Hijau">
+    </div>
+    <p>Kodok Hijau</p>
+  </div>
+  <div class="card" data-caption="Hutan Asri">
+    <div class="img-wrapper loading">
+      <img data-src="https://tools.fay.my.id/ai/generator/prompt/prabowo?width=400&height=300" alt="Hutan Asri">
+    </div>
+    <p>Hutan Asri</p>
+  </div>
+  <div class="card" data-caption="Gedung Kota">
+    <div class="img-wrapper loading">
+      <img data-src="https://tools.fay.my.id/ai/generator/prompt/anis?width=400&height=300" alt="Gedung Kota">
+    </div>
+    <p>Gedung Kota</p>
+  </div>
+  <div class="card" data-caption="Burung Elang">
+    <div class="img-wrapper loading">
+      <img data-src="https://tools.fay.my.id/ai/generator/prompt/puan?width=400&height=300" alt="Burung Elang">
+    </div>
+    <p>Burung Elang</p>
+  </div>
+  <div class="card" data-caption="Gunung Tinggi">
+    <div class="img-wrapper loading">
+      <img data-src="https://tools.fay.my.id/ai/generator/prompt/roky gerung?width=400&height=300" alt="Gunung Tinggi">
+    </div>
+    <p>Gunung Tinggi</p>
+  </div>
+</div>
+
+<!-- === Modal Viewer === -->
+<div class="viewer" id="viewer" aria-hidden="true">
+  <button class="close" aria-label="Tutup">×</button>
+  <button class="nav prev" aria-label="Sebelumnya">❮</button>
+  <button class="nav next" aria-label="Berikutnya">❯</button>
+  <div class="frame">
+    <div class="img-wrapper loading">
+      <img id="viewer-img" alt="">
+    </div>
+    <p class="caption" id="viewer-caption"></p>
+    <div class="index-indicator" id="viewer-index"></div>
+  </div>
+</div>
+
+<script>
+const gallery = document.getElementById('gallery');
+const viewer = document.getElementById('viewer');
+const viewerImg = document.getElementById('viewer-img');
+const viewerCaption = document.getElementById('viewer-caption');
+const idxIndicator = document.getElementById('viewer-index');
+const btnClose = viewer.querySelector('.close');
+const btnPrev = viewer.querySelector('.prev');
+const btnNext = viewer.querySelector('.next');
+
+let cards = Array.from(gallery.querySelectorAll('.card'));
+let currentIndex = 0;
+let lastFocus = null;
+
+/* === Lazy Load Thumbnails === */
+const lazyObserver = new IntersectionObserver((entries, obs)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const img = entry.target;
+      img.src = img.dataset.src;
+      img.onload = ()=> img.parentElement.classList.remove('loading');
+      obs.unobserve(img);
+    }
+  });
+},{ rootMargin: "50px" });
+gallery.querySelectorAll('img[data-src]').forEach(img=>{
+  lazyObserver.observe(img);
+});
+
+/* === Open Modal === */
+cards.forEach((card, i)=>{
+  card.addEventListener('click', ()=>openViewer(i));
+});
+
+function openViewer(i){
+  currentIndex = i;
+  lastFocus = document.activeElement;
+  viewer.classList.add('open');
+  viewer.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  showImage();
+  btnClose.focus();
+}
+
+function closeViewer(){
+  viewer.classList.remove('open');
+  viewer.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  if(lastFocus) lastFocus.focus();
+}
+
+btnClose.addEventListener('click', closeViewer);
+
+/* === Show Image in Modal === */
+function showImage(){
+  const card = cards[currentIndex];
+  const caption = card.dataset.caption;
+  const thumb = card.querySelector('img').src;
+
+  const wrap = viewerImg.closest('.img-wrapper');
+  wrap.classList.add('loading');
+  viewerImg.src = thumb;
+  viewerCaption.textContent = caption;
+  idxIndicator.textContent = `${currentIndex+1} / ${cards.length}`;
+
+  const full = new Image();
+  full.src = thumb.replace('width=400&height=300','width=1200&height=900');
+  if(full.complete){
+    viewerImg.src = full.src;
+    wrap.classList.remove('loading');
+  }else{
+    full.onload = ()=>{
+      viewerImg.src = full.src;
+      wrap.classList.remove('loading');
+    };
+  }
+
+  // update nav visibility
+  btnPrev.classList.toggle('hidden', currentIndex===0);
+  btnNext.classList.toggle('hidden', currentIndex===cards.length-1);
+}
+
+/* === Navigation === */
+btnPrev.addEventListener('click', ()=>{ if(currentIndex>0){ currentIndex--; showImage(); }});
+btnNext.addEventListener('click', ()=>{ if(currentIndex<cards.length-1){ currentIndex++; showImage(); }});
+
+document.addEventListener('keydown', e=>{
+  if(!viewer.classList.contains('open')) return;
+  if(e.key==='Escape') closeViewer();
+  if(e.key==='ArrowLeft' && currentIndex>0){ currentIndex--; showImage(); }
+  if(e.key==='ArrowRight' && currentIndex<cards.length-1){ currentIndex++; showImage(); }
+});
+</script>
+
+</body>
+</html>

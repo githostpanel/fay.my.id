@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Pendaftaran Program Privat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-poppins">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md fixed w-full top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center py-4 px-6">
+      <div class="flex items-center space-x-2">
+        <img src="https://i0.wp.com/englishcall.id/wp-content/uploads/2022/02/english-call.png" alt="Logo" class="h-10">
+        <span class="font-bold text-lg hidden md:inline">English Call</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-28 max-w-3xl mx-auto px-4 sm:px-6">
+
+    <!-- Hero -->
+    <section class="text-center py-16">
+      <h1 class="text-4xl sm:text-5xl font-extrabold mb-4">Form Pendaftaran Program Privat</h1>
+      <p class="text-gray-700 text-lg max-w-xl mx-auto">Isi form di bawah ini untuk mendaftar dan konfirmasi melalui WhatsApp.</p>
+    </section>
+
+    <!-- Form Pendaftaran -->
+    <section class="bg-white rounded-xl shadow-lg p-8 mb-16">
+      <form id="registrationForm" class="space-y-6">
+
+        <!-- Nama Lengkap -->
+        <div>
+          <label for="name" class="block font-semibold mb-2">Nama Lengkap</label>
+          <input type="text" id="name" name="name" required
+                 class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block font-semibold mb-2">Email</label>
+          <input type="email" id="email" name="email" required
+                 class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+        </div>
+
+        <!-- Nomor HP -->
+        <div>
+          <label for="phone" class="block font-semibold mb-2">Nomor HP</label>
+          <input type="tel" id="phone" name="phone" required
+                 class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+        </div>
+
+        <!-- Program Privat -->
+        <div>
+          <label for="program" class="block font-semibold mb-2">Program Privat</label>
+          <select id="program" name="program" required
+                  class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+            <option value="">-- Pilih Program --</option>
+            <option value="pre-school">Private Pre-School</option>
+            <option value="tk">Private TK</option>
+            <option value="sd">Private SD</option>
+            <option value="smp">Private SMP</option>
+            <option value="sma">Private SMA</option>
+            <option value="kuliah">Private Kuliah</option>
+          </select>
+        </div>
+
+        <!-- Preferensi Jadwal -->
+        <div>
+          <label for="schedule" class="block font-semibold mb-2">Preferensi Jadwal</label>
+          <input type="text" id="schedule" name="schedule" placeholder="Contoh: Senin & Rabu, 16:00-17:00"
+                 class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+        </div>
+
+        <!-- Alamat -->
+
+
+
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <div>
+    <label for="province" class="block font-semibold mb-2">Provinsi</label>
+    <select id="province" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+      <option value="">-- Pilih Provinsi --</option>
+    </select>
+  </div>
+  <div>
+    <label for="city" class="block font-semibold mb-2">Kota/Kabupaten</label>
+    <select id="city" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+      <option value="">-- Pilih Kota --</option>
+    </select>
+  </div>
+  <div>
+    <label for="district" class="block font-semibold mb-2">Kecamatan</label>
+    <select id="district" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+      <option value="">-- Pilih Kecamatan --</option>
+    </select>
+  </div>
+</div>
+
+
+        <!-- Metode Pembayaran -->
+        <div>
+          <label class="block font-semibold mb-2">Metode Pembayaran</label>
+          <select id="payment" name="payment" required
+                  class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+            <option value="">-- Pilih Bank --</option>
+            <option value="BCA">BCA</option>
+            <option value="BNI">BNI</option>
+            <option value="BRI">BRI</option>
+          </select>
+        </div>
+
+        <!-- Catatan Tambahan -->
+        <div>
+          <label for="notes" class="block font-semibold mb-2">Catatan Tambahan</label>
+          <textarea id="notes" name="notes" rows="4"
+                    class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                    placeholder="Contoh: Anak lebih fokus pada speaking"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <button type="submit"
+                  class="w-full bg-green-500 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-green-600 transition-colors">
+            Kirim via WhatsApp
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+  <footer class="bg-white/50 py-6 text-center text-sm text-gray-700">
+    &copy; 2025 English Call. All rights reserved.
+  </footer>
+
+  <script>
+    const form = document.getElementById("registrationForm");
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const program = document.getElementById("program").value;
+      const schedule = document.getElementById("schedule").value;
+      const province = document.getElementById("province").value;
+      const city = document.getElementById("city").value;
+      const district = document.getElementById("district").value;
+      const payment = document.getElementById("payment").value;
+      const notes = document.getElementById("notes").value;
+
+      // Buat pesan WhatsApp
+      const message = `Halo, saya ingin mendaftar program privat:\n\n` +
+                      `Nama: ${name}\n` +
+                      `Email: ${email}\n` +
+                      `Nomor HP: ${phone}\n` +
+                      `Program: ${program}\n` +
+                      `Jadwal: ${schedule}\n` +
+                      `Alamat: ${district}, ${city}, ${province}\n` +
+                      `Metode Pembayaran: ${payment}\n` +
+                      `Catatan: ${notes}`;
+
+      // Encode pesan
+      const encodedMessage = encodeURIComponent(message);
+
+      // Nomor WhatsApp tujuan
+      const waNumber = "6281234567890"; // ganti dengan nomor WA resmi
+
+      // Buka WhatsApp
+      window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, "_blank");
+    });
+  </script>
+
+<script>
+  // Data contoh provinsi → kota → kecamatan
+  const data = {
+    "Jawa Barat": {
+      "Bandung": ["Cicendo", "Coblong", "Lengkong"],
+      "Bekasi": ["Bekasi Timur", "Bekasi Selatan", "Bekasi Utara"]
+    },
+    "DKI Jakarta": {
+      "Jakarta Pusat": ["Gambir", "Menteng", "Tanah Abang"],
+      "Jakarta Selatan": ["Kebayoran Baru", "Cilandak", "Pancoran"]
+    }
+  };
+
+  const provinceSelect = document.getElementById("province");
+  const citySelect = document.getElementById("city");
+  const districtSelect = document.getElementById("district");
+
+  // Populate provinsi
+  for (let prov in data) {
+    let option = document.createElement("option");
+    option.value = prov;
+    option.text = prov;
+    provinceSelect.add(option);
+  }
+
+  // Saat pilih provinsi → populate kota
+  provinceSelect.addEventListener("change", function() {
+    citySelect.innerHTML = '<option value="">-- Pilih Kota --</option>';
+    districtSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+
+    if (this.value !== "") {
+      const cities = Object.keys(data[this.value]);
+      cities.forEach(city => {
+        let option = document.createElement("option");
+        option.value = city;
+        option.text = city;
+        citySelect.add(option);
+      });
+    }
+  });
+
+  // Saat pilih kota → populate kecamatan
+  citySelect.addEventListener("change", function() {
+    districtSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+
+    const selectedProvince = provinceSelect.value;
+    if (this.value !== "" && selectedProvince !== "") {
+      const districts = data[selectedProvince][this.value];
+      districts.forEach(district => {
+        let option = document.createElement("option");
+        option.value = district;
+        option.text = district;
+        districtSelect.add(option);
+      });
+    }
+  });
+</script>
+</body>
+</html>

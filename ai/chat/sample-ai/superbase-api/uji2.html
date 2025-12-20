@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyMind AI Chatbot Kustom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
+        /* Styling kustom untuk slider (Mengubah ke Oranye) */
+        input[type=range]::-webkit-slider-runnable-track {
+            background: #262626; /* netral-800 */
+            border-radius: 4px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #f97316; /* orange-600 */
+            margin-top: -6px;
+            box-shadow: 0 0 4px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen bg-neutral-900 text-neutral-50">
+
+    <div id="header" class="bg-neutral-800 p-4 border-b border-neutral-700 shadow-xl z-10 sticky top-0">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-xl font-bold text-orange-400">MyMind AI (Supabase)</h1>
+            
+            <!-- Tombol Toggle Pengaturan untuk Mobile -->
+            <button id="settings-toggle" class="md:hidden p-2 text-neutral-300 hover:text-orange-400 transition">
+                <!-- Ikon panah yang akan berputar saat diklik -->
+                <svg id="toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-0 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            
+            <div id="session-info" class="hidden md:block text-sm text-neutral-400">
+                <!-- ID Sesi tidak diperlukan untuk API ini -->
+            </div>
+        </div>
+
+        <!-- Konten Pengaturan (Dapat disembunyikan/ditampilkan) -->
+        <div id="settings-content" class="hidden md:block">
+            <!-- Baris 1: Explanation Style -->
+            <div class="flex flex-wrap gap-2 mb-4" id="style-selector">
+                <label class="text-sm font-semibold mr-2 text-neutral-300">Gaya Penjelasan:</label>
+                <!-- Tombol akan diisi oleh JavaScript -->
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Kolom 1: Difficulty Level -->
+                <div class="flex flex-col">
+                    <label id="difficulty-label" class="text-sm font-semibold mb-2 text-neutral-300">Tingkat Kesulitan: <span class="text-orange-400">Menengah</span></label>
+                    <div class="relative pt-2">
+                        <input type="range" id="difficulty-slider" min="0" max="100" value="50" class="w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer" oninput="updateDifficultyLabel()">
+                        <div class="flex justify-between text-xs mt-1 text-neutral-500">
+                            <span>Toddler</span>
+                            <span>Expert</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kolom 2: Explain-o-Meter (Detail) -->
+                <div class="flex flex-col">
+                    <label id="detail-label" class="text-sm font-semibold mb-2 text-neutral-300">Level Detail: <span class="text-orange-400">Sedang</span></label>
+                    <div class="relative pt-2">
+                        <input type="range" id="detail-slider" min="0" max="100" value="50" class="w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer" oninput="updateDetailLabel()">
+                        <div class="flex justify-between text-xs mt-1 text-neutral-500">
+                            <span>Brief</span>
+                            <span>Detailed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kolom 3: Language -->
+                <div class="flex flex-col">
+                    <label class="text-sm font-semibold mb-2 text-neutral-300">Bahasa</label>
+                    <select id="language-select" class="p-2 bg-neutral-700 border border-neutral-600 rounded-lg text-sm focus:ring-orange-500 focus:border-orange-500 transition duration-150">
+                        <option value="Auto-detect">Auto-detect</option>
+                        <option value="Indonesian">Indonesian (Indonesia)</option>
+                        <option value="English">English (United States)</option>
+                        <option value="Japanese">Japanese (Japan)</option>
+                        <option value="Spanish">Spanish (Spain)</option>
+                        <option value="Dutch">Dutch (Netherlands)</option>
+                    </select>
+                </div>
+            </div>
+        </div> <!-- End settings-content -->
+    </div>
+
+    <!-- Area Riwayat Obrolan -->
+    <div id="chat-history" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-4">
+        <div id="initial-message" class="flex flex-col items-center justify-center h-full text-center text-neutral-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <p class="text-lg">Selamat datang di MyMind AI!</p>
+            <p class="text-sm">Tanyakan apa saja dan sesuaikan gaya penjelasannya di atas.</p>
+        </div>
+        <div id="chat-end"></div>
+    </div>
+
+    <!-- Area Input -->
+    <div class="p-4 md:p-6 bg-neutral-800 border-t border-neutral-700 shadow-2xl sticky bottom-0">
+        <div id="error-message" class="mb-3 p-2 bg-red-800 text-red-100 rounded-lg text-sm hidden"></div>
+        <div class="flex flex-col">
+            <form id="chat-form" class="flex items-center space-x-3">
+                <input
+                    type="text"
+                    id="user-input"
+                    placeholder="Tanyakan apa saja..."
+                    class="flex-1 p-3 text-sm bg-neutral-700 border border-neutral-600 rounded-full focus:ring-orange-500 focus:border-orange-500 placeholder-neutral-400 disabled:opacity-60 transition duration-150"
+                />
+                <button
+                    type="submit"
+                    id="send-button"
+                    class="p-3 bg-orange-600 text-white rounded-full hover:bg-orange-700 transition duration-150 disabled:bg-neutral-600 disabled:cursor-not-allowed shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l.493-.198.818-.328a1 1 0 011.05.176l2.126 1.701a1 1 0 001.528 0l2.126-1.701a1 1 0 011.05-.176l.818.328.493.198a1 1 0 001.17-1.409l-7-14z" />
+                    </svg>
+                </button>
+            </form>
+            <div class="mt-2 flex justify-between text-xs text-neutral-400">
+                <button id="clear-chat" class="hover:text-orange-400 transition duration-150">Clear chat</button>
+                <a href="#" class="hover:text-orange-400 transition duration-150">Take a Quiz (Placeholder)</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://edoyuwjhdztxlktqmhsl.supabase.co/functions/v1/explain';
+        // !!! HARAP GANTI 'YOUR_TOKEN' dengan token otorisasi Supabase yang valid !!!
+        const API_TOKEN = 'YOUR_TOKEN'; 
+
+        const EXPLANATION_STYLES = [
+            { id: 'like_im_5', label: 'Like I\'m 5', emoji: '👶', prompt: 'Jelaskan seolah-olah kepada anak usia 5 tahun.' },
+            { id: 'analogies', label: 'Analogies', emoji: '🧩', prompt: 'Gunakan analogi dan metafora untuk menjelaskan.' },
+            { id: 'step_by_step', label: 'Step-by-step', emoji: '🪜', prompt: 'Berikan penjelasan langkah demi langkah yang terstruktur.' },
+            { id: 'funny', label: 'Funny', emoji: '😂', prompt: 'Jelaskan dengan gaya yang lucu dan jenaka.' },
+            { id: 'story', label: 'Story', emoji: '📖', prompt: 'Jelaskan dengan menceritakan sebuah kisah.' },
+            { id: 'make_complex', label: 'Make Complex', emoji: '🧠', prompt: 'Gunakan istilah yang sangat teknis dan kompleks.' },
+        ];
+        
+        // Variabel global untuk menyimpan query terakhir untuk fungsi regenerasi
+        let lastUserQuery = ''; 
+
+        const DOMElements = {
+            chatHistory: document.getElementById('chat-history'),
+            initialMessage: document.getElementById('initial-message'),
+            chatEnd: document.getElementById('chat-end'),
+            userInput: document.getElementById('user-input'),
+            chatForm: document.getElementById('chat-form'),
+            sendButton: document.getElementById('send-button'),
+            errorDiv: document.getElementById('error-message'),
+            styleSelector: document.getElementById('style-selector'),
+            difficultySlider: document.getElementById('difficulty-slider'),
+            difficultyLabel: document.getElementById('difficulty-label'),
+            detailSlider: document.getElementById('detail-slider'),
+            detailLabel: document.getElementById('detail-label'),
+            languageSelect: document.getElementById('language-select'),
+            clearChatButton: document.getElementById('clear-chat'),
+            // NEW: Elemen untuk fungsionalitas Toggle
+            settingsToggle: document.getElementById('settings-toggle'),
+            settingsContent: document.getElementById('settings-content'),
+        };
+
+        // --- Helper Functions ---
+
+        /** Menggulir riwayat obrolan ke bawah */
+        function scrollToBottom() {
+            DOMElements.chatEnd.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        /** Menghapus semua gelembung chat dan menampilkan pesan awal */
+        function clearChatHistory() {
+            DOMElements.chatHistory.innerHTML = '';
+            lastUserQuery = ''; // Reset query terakhir
+
+            const initialMessageDiv = document.createElement('div');
+            initialMessageDiv.id = 'initial-message';
+            initialMessageDiv.className = 'flex flex-col items-center justify-center h-full text-center text-neutral-500';
+            initialMessageDiv.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <p class="text-lg">Selamat datang di MyMind AI!</p>
+                <p class="text-sm">Tanyakan apa saja dan sesuaikan gaya penjelasannya di atas.</p>
+            `;
+            DOMElements.chatHistory.appendChild(initialMessageDiv);
+            
+            const chatEndDiv = document.createElement('div');
+            chatEndDiv.id = 'chat-end';
+            DOMElements.chatHistory.appendChild(chatEndDiv);
+
+            DOMElements.initialMessage = initialMessageDiv;
+            DOMElements.chatEnd = chatEndDiv;
+
+            scrollToBottom();
+        }
+
+        /** Memperbarui label tingkat kesulitan */
+        function updateDifficultyLabel() {
+            const value = parseInt(DOMElements.difficultySlider.value);
+            let text = 'Menengah';
+            if (value < 33) text = 'Toddler';
+            else if (value > 67) text = 'Expert';
+            DOMElements.difficultyLabel.querySelector('span').textContent = text;
+        }
+
+        /** Memperbarui label tingkat detail */
+        function updateDetailLabel() {
+            const value = parseInt(DOMElements.detailSlider.value);
+            let text = 'Sedang';
+            if (value < 33) text = 'Brief';
+            else if (value > 67) text = 'Detailed';
+            DOMElements.detailLabel.querySelector('span').textContent = text;
+        }
+
+        /** Mendapatkan prompt kustomisasi dari pengaturan UI */
+        function getCustomizationPrompt() {
+            const activeStyleButton = document.querySelector('.style-button.active-style');
+            const styleId = activeStyleButton ? activeStyleButton.id.replace('style-', '') : 'like_im_5'; // Default jika tidak ada yang aktif
+            
+            const style = EXPLANATION_STYLES.find(s => s.id === styleId);
+            
+            const difficultyValue = parseInt(DOMElements.difficultySlider.value);
+            const difficultyText = difficultyValue < 33 ? 'sangat mendasar' : (difficultyValue < 67 ? 'menengah' : 'tingkat lanjut');
+            
+            const detailValue = parseInt(DOMElements.detailSlider.value);
+            const detailText = detailValue < 33 ? 'singkat dan padat (maks 2 kalimat)' : (detailValue < 67 ? 'seimbang dan moderat' : 'sangat rinci dan mendalam');
+
+            const languageText = DOMElements.languageSelect.value === 'Auto-detect' 
+                ? 'otomatis mendeteksi bahasa pengguna dan merespons dalam bahasa yang sama' 
+                : `secara ketat merespons dalam bahasa ${DOMElements.languageSelect.value}`;
+
+            return `Anda adalah seorang ahli AI. Instruksi: ${style.prompt} Gunakan kesulitan ${difficultyText}, dan jawaban yang ${detailText}. ${languageText}.`;
+        }
+        
+        /** Menampilkan pesan error */
+        function displayError(message) {
+            DOMElements.errorDiv.textContent = 'Error: ' + message;
+            DOMElements.errorDiv.classList.remove('hidden');
+        }
+
+        /** Menghapus pesan error */
+        function clearError() {
+            DOMElements.errorDiv.classList.add('hidden');
+            DOMElements.errorDiv.textContent = '';
+        }
+
+        /** Merender gelembung chat */
+        function renderChatBubble(role, content) {
+            // content bisa berupa string (pesan error/pengguna) atau objek {reply, suggestions}
+            
+            const isModel = role === 'model';
+            const explanation = content.reply || content;
+            const suggestions = content.suggestions || [];
+            
+            const bubble = document.createElement('div');
+            bubble.className = `flex w-full mb-4 ${isModel ? 'justify-start' : 'justify-end'}`;
+
+            const contentDiv = document.createElement('div');
+            // AI (Model) Bubble: bg-neutral-800, User Bubble: bg-orange-600
+            contentDiv.className = `max-w-[80%] p-4 rounded-xl shadow-lg transition-all duration-300 ${isModel
+                ? 'bg-neutral-800 text-neutral-50 rounded-tl-none'
+                : 'bg-orange-600 text-white rounded-br-none'
+            }`;
+            
+            const header = document.createElement('div');
+            header.className = 'font-semibold mb-1 capitalize';
+            header.textContent = isModel ? 'MyMind AI' : 'Anda';
+            contentDiv.appendChild(header);
+
+            const text = document.createElement('p');
+            text.className = 'whitespace-pre-wrap';
+            text.textContent = explanation;
+            contentDiv.appendChild(text);
+
+            if (isModel) {
+                // Tombol aksi (Salin, Regenerasi)
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'flex space-x-3 mt-4 text-xs text-neutral-300';
+                
+                const copyButton = document.createElement('button');
+                copyButton.className = 'flex items-center hover:text-orange-400';
+                copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002-2h2a2 2 0 002 2M3 17h18"/></svg>Salin';
+                copyButton.onclick = () => navigator.clipboard.writeText(explanation);
+                actionsDiv.appendChild(copyButton);
+
+                // Tombol Regenerasi (SUDAH DIIMPLEMENTASIKAN)
+                const regenerateButton = document.createElement('button');
+                regenerateButton.className = 'flex items-center hover:text-orange-400';
+                regenerateButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 12M4 20h5.582m15.356-2A8.001 8.001 0 018.582 8M12 2v10m0 0l-3-3m3 3l3-3"/></svg>Regenerasi';
+                regenerateButton.onclick = () => {
+                    if (lastUserQuery) {
+                        // Tampilkan indikator bahwa regenerasi sedang berlangsung
+                        renderChatBubble('model', '🤖 Meregenerasi jawaban untuk: "' + lastUserQuery + '"...');
+                        submitMessage(lastUserQuery);
+                    } else {
+                        displayError("Tidak ada pertanyaan terakhir yang dapat diregenerasi. Silakan ajukan pertanyaan terlebih dahulu.");
+                    }
+                };
+                actionsDiv.appendChild(regenerateButton);
+
+                contentDiv.appendChild(actionsDiv);
+
+                // Suggestions
+                if (suggestions && suggestions.length > 0) {
+                    const suggestionsDiv = document.createElement('div');
+                    suggestionsDiv.className = 'mt-4 pt-4 border-t border-neutral-700';
+                    suggestionsDiv.innerHTML = '<p class="text-sm font-medium mb-2 text-neutral-400">Pertanyaan Lanjutan:</p>';
+
+                    const buttonsContainer = document.createElement('div');
+                    buttonsContainer.className = 'flex flex-wrap gap-2';
+                    suggestions.forEach(s => {
+                        const btn = document.createElement('button');
+                        btn.textContent = s;
+                        btn.className = 'px-3 py-1 text-sm bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded-full transition duration-150';
+                        btn.onclick = () => submitMessage(s);
+                        buttonsContainer.appendChild(btn);
+                    });
+                    suggestionsDiv.appendChild(buttonsContainer);
+                    contentDiv.appendChild(suggestionsDiv);
+                }
+            }
+
+            bubble.appendChild(contentDiv);
+            DOMElements.chatHistory.insertBefore(bubble, DOMElements.chatEnd);
+            scrollToBottom();
+        }
+
+        /** Indikator loading AI */
+        function renderLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.className = 'flex justify-start';
+            loadingDiv.innerHTML = `
+                <div class="max-w-[80%] p-4 rounded-xl bg-neutral-800 rounded-tl-none shadow-lg">
+                    <div class="font-semibold mb-1">MyMind AI</div>
+                    <div class="flex space-x-2">
+                        <div class="h-2 w-2 bg-orange-400 rounded-full animate-bounce"></div>
+                        <div class="h-2 w-2 bg-orange-400 rounded-full animate-bounce delay-150"></div>
+                        <div class="h-2 w-2 bg-orange-400 rounded-full animate-bounce delay-300"></div>
+                    </div>
+                </div>
+            `;
+            DOMElements.chatHistory.insertBefore(loadingDiv, DOMElements.chatEnd);
+            scrollToBottom();
+        }
+
+        /** Menghapus indikator loading */
+        function removeLoadingIndicator() {
+            const loading = document.getElementById('loading-indicator');
+            if (loading) loading.remove();
+        }
+
+        /** Mengubah status input/tombol */
+        function setUIStatus(isLoading) {
+            DOMElements.userInput.disabled = isLoading;
+            DOMElements.sendButton.disabled = isLoading || !DOMElements.userInput.value.trim();
+        }
+
+        /** Mengubah tampilan pengaturan (show/hide) di mobile */
+        function toggleSettings() {
+            const content = DOMElements.settingsContent;
+            const icon = document.getElementById('toggle-icon');
+
+            content.classList.toggle('hidden');
+            if (content.classList.contains('hidden')) {
+                icon.classList.remove('rotate-180');
+                icon.classList.add('rotate-0');
+            } else {
+                icon.classList.remove('rotate-0');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // --- Main Logic ---
+
+        /** Menangani pengiriman pesan */
+        async function submitMessage(text) {
+            const queryText = text.trim();
+            if (!queryText) return;
+
+            setUIStatus(true);
+            clearError();
+            
+            // Simpan query terakhir untuk regenerasi
+            lastUserQuery = queryText;
+
+            // Hapus pesan awal jika ada
+            if (DOMElements.initialMessage) {
+                DOMElements.initialMessage.remove();
+                DOMElements.initialMessage = null;
+            }
+
+            // 1. Render pesan pengguna (hanya jika ini bukan regenerasi internal)
+            if (!DOMElements.chatHistory.lastChild || !DOMElements.chatHistory.lastChild.textContent.includes('Meregenerasi jawaban')) {
+                 renderChatBubble('user', queryText);
+            }
+            
+            DOMElements.userInput.value = ''; // Hapus input setelah pengiriman
+            DOMElements.sendButton.disabled = true; // Nonaktifkan tombol setelah input dihapus
+
+            // 2. Tampilkan indikator loading
+            renderLoadingIndicator();
+
+            try {
+                // 3. Gabungkan prompt kustomisasi dan pertanyaan pengguna
+                const customization = getCustomizationPrompt();
+                const combinedPrompt = `${customization} Pertanyaan: ${queryText}`;
+                
+                const payload = { prompt: combinedPrompt };
+				
+// 				const payload = {
+//     prompt: prompt,
+//     mode: mode,
+//     difficulty: difficulty,
+//     length: length,
+//     language: language
+// };
+
+                // Menggunakan fungsi rekursif untuk backoff eksponensial (Best Practice)
+                const fetchWithRetry = async (url, options, maxRetries = 5, delay = 1000) => {
+                    for (let i = 0; i < maxRetries; i++) {
+                        try {
+                            const response = await fetch(url, options);
+                            if (response.status !== 429) return response; // Success or non-retryable error
+                        } catch (error) {
+                            // Non-network error, can retry
+                        }
+                        await new Promise(resolve => setTimeout(resolve, delay * (2 ** i)));
+                    }
+                    throw new Error("Gagal terhubung ke API setelah beberapa kali percobaan.");
+                };
+                
+                const response = await fetchWithRetry(API_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_TOKEN}` // Gunakan token Anda di sini
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                removeLoadingIndicator();
+
+                if (response.status === 401) {
+                    throw new Error("Otentikasi Gagal (401). Pastikan API_TOKEN telah diganti.");
+                }
+
+                if (!response.ok) {
+                    const errorDetails = await response.text();
+                    throw new Error(`Permintaan API gagal: ${response.status} - ${errorDetails}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // 4. Render respons AI
+                    renderChatBubble('model', {
+                        reply: data.reply || "Gagal mendapatkan penjelasan dari AI.",
+                        suggestions: data.suggestions || []
+                    });
+                } else {
+                    throw new Error(data.reply || "Respons API tidak berhasil.");
+                }
+
+            } catch (error) {
+                removeLoadingIndicator();
+                console.error("Kesalahan Chatbot:", error);
+                displayError(error.message);
+                
+                // Render pesan error di gelembung chat AI
+                renderChatBubble('model', `[ERROR] Gagal mendapatkan respons dari AI. Detail: ${error.message}`);
+            }
+
+            setUIStatus(false);
+        }
+
+        // --- Event Listeners dan Inisialisasi ---
+
+        // Inisialisasi tombol gaya
+        function initializeStyles() {
+            EXPLANATION_STYLES.forEach(style => {
+                const button = document.createElement('button');
+                button.id = `style-${style.id}`;
+                button.textContent = `${style.emoji} ${style.label}`;
+                // Gaya tombol default (inactive)
+                button.className = `style-button flex items-center px-4 py-2 text-sm rounded-full transition-all duration-200 shadow-md whitespace-nowrap
+                                    bg-neutral-700 text-neutral-300 hover:bg-neutral-600`;
+                
+                // Gaya tombol aktif
+                if (style.id === 'like_im_5') {
+                    button.classList.add('active-style', 'bg-orange-500', 'text-neutral-900', 'font-semibold', 'shadow-xl');
+                } else {
+                    button.classList.add('text-neutral-300');
+                }
+
+                button.onclick = () => {
+                    // Nonaktifkan semua tombol
+                    document.querySelectorAll('.style-button').forEach(btn => {
+                        btn.classList.remove('active-style', 'bg-orange-500', 'text-neutral-900', 'font-semibold', 'shadow-xl');
+                        btn.classList.add('bg-neutral-700', 'text-neutral-300');
+                    });
+                    // Aktifkan tombol yang diklik
+                    button.classList.remove('bg-neutral-700', 'text-neutral-300');
+                    button.classList.add('active-style', 'bg-orange-500', 'text-neutral-900', 'font-semibold', 'shadow-xl');
+                };
+                DOMElements.styleSelector.appendChild(button);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeStyles();
+            updateDifficultyLabel();
+            updateDetailLabel();
+
+            DOMElements.chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitMessage(DOMElements.userInput.value);
+            });
+
+            DOMElements.userInput.addEventListener('input', () => {
+                DOMElements.sendButton.disabled = DOMElements.userInput.value.trim() === '';
+            });
+
+            DOMElements.difficultySlider.addEventListener('input', updateDifficultyLabel);
+            DOMElements.detailSlider.addEventListener('input', updateDetailLabel);
+            
+            // Tambahkan event listener untuk tombol clear chat
+            DOMElements.clearChatButton.addEventListener('click', clearChatHistory);
+            
+            // NEW: Event listener untuk toggle pengaturan di mobile
+            DOMElements.settingsToggle.addEventListener('click', toggleSettings);
+
+
+            // Periksa jika token default masih digunakan
+            if (API_TOKEN === 'YOUR_TOKEN') {
+                displayError("PERINGATAN: Ganti 'YOUR_TOKEN' dalam kode JavaScript dengan token Supabase Anda yang valid!");
+            }
+        });
+    </script>
+</body>
+</html>
