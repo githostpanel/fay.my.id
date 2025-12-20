@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Modern AI Chatbot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Prism.js -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"/>
+
+<style>
+:root{
+  --primary:#10a37f;
+  --bg:#f7f7f8;
+  --user:#dcf8c6;
+  --bot:#ffffff;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:var(--bg);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.chat-app{
+  width:100%;
+  max-width:460px;
+  height:92vh;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 12px 40px rgba(0,0,0,.12);
+}
+
+.header{
+  background:var(--primary);
+  color:#fff;
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:bold;
+}
+
+.header button{
+  background:none;
+  border:none;
+  color:white;
+  cursor:pointer;
+}
+
+.chat{
+  flex:1;
+  padding:14px;
+  overflow-y:auto;
+}
+
+.msg{
+  max-width:85%;
+  padding:12px 14px;
+  margin-bottom:12px;
+  border-radius:12px;
+  white-space:pre-wrap;
+  line-height:1.5;
+  font-size:14px;
+}
+
+.user{
+  background:var(--user);
+  margin-left:auto;
+  border-bottom-right-radius:4px;
+}
+
+.bot{
+  background:var(--bot);
+  border:1px solid #ddd;
+  margin-right:auto;
+  border-bottom-left-radius:4px;
+}
+
+.typing{
+  font-size:13px;
+  color:gray;
+  margin-bottom:8px;
+}
+
+.input-area{
+  border-top:1px solid #ddd;
+  padding:10px;
+  display:flex;
+  gap:8px;
+}
+
+textarea{
+  flex:1;
+  resize:none;
+  height:52px;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  outline:none;
+  font-size:14px;
+}
+
+/* CODE BLOCK */
+pre{
+  background:#0f172a;
+  color:#e5e7eb;
+  padding:14px;
+  border-radius:10px;
+  overflow-x:auto;
+  font-size:13px;
+  position:relative;
+  margin-top:10px;
+}
+
+.copy-btn{
+  position:absolute;
+  top:6px;
+  right:8px;
+  background:#1e293b;
+  color:#fff;
+  border:none;
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:6px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="chat-app">
+  <div class="header">
+    🤖 AI Chatbot
+    <button onclick="clearChat()">Clear</button>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="input-area">
+    <textarea id="input" placeholder="Ketik pesan... (Enter = kirim, Shift+Enter = baris baru)"></textarea>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+
+<script>
+const API_KEY = ""; // ⚠️ Jangan untuk produksi
+
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+
+let messages = [
+  { role:"system", content:"Kamu adalah chatbot AI yang ramah dan membantu." }
+];
+
+// ENTER kirim | SHIFT+ENTER newline
+input.addEventListener("keydown", e=>{
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// Parse markdown code block
+function parseMessage(text){
+  const parts=[];
+  const regex=/```([\s\S]*?)```/g;
+  let last=0, m;
+
+  while((m=regex.exec(text))){
+    if(m.index>last){
+      parts.push({type:"text",content:text.slice(last,m.index)});
+    }
+    parts.push({type:"code",content:m[1].trim()});
+    last=regex.lastIndex;
+  }
+  if(last<text.length){
+    parts.push({type:"text",content:text.slice(last)});
+  }
+  return parts;
+}
+
+function addMessage(role){
+  const div=document.createElement("div");
+  div.className=`msg ${role}`;
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+  return div;
+}
+
+function showTyping(){
+  const t=document.createElement("div");
+  t.className="typing";
+  t.id="typing";
+  t.textContent="Bot sedang mengetik...";
+  chat.appendChild(t);
+}
+
+function removeTyping(){
+  const t=document.getElementById("typing");
+  if(t) t.remove();
+}
+
+// Typing + code render
+async function typeEffect(el,text){
+  const parts=parseMessage(text);
+  for(const p of parts){
+    if(p.type==="text"){
+      const span=document.createElement("span");
+      el.appendChild(span);
+      for(const c of p.content){
+        span.textContent+=c;
+        chat.scrollTop=chat.scrollHeight;
+        await new Promise(r=>setTimeout(r,20));
+      }
+    }else{
+      const pre=document.createElement("pre");
+      const btn=document.createElement("button");
+      btn.className="copy-btn";
+      btn.textContent="Copy";
+      btn.onclick=()=>navigator.clipboard.writeText(p.content);
+
+      const code=document.createElement("code");
+      code.textContent=p.content;
+
+      pre.appendChild(btn);
+      pre.appendChild(code);
+      el.appendChild(pre);
+      Prism.highlightElement(code);
+    }
+  }
+}
+
+async function sendMessage(){
+  const text=input.value.trim();
+  if(!text) return;
+
+  addMessage("user").textContent=text;
+  messages.push({role:"user",content:text});
+  input.value="";
+
+  showTyping();
+
+  const res=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+API_KEY
+    },
+    body:JSON.stringify({
+      model:"gpt-4o-mini",
+      messages
+    })
+  });
+
+  const data=await res.json();
+  const reply=data.choices[0].message.content;
+
+  removeTyping();
+  const botEl=addMessage("bot");
+  await typeEffect(botEl,reply);
+
+  messages.push({role:"assistant",content:reply});
+}
+
+function clearChat(){
+  chat.innerHTML="";
+  messages=messages.slice(0,1);
+}
+</script>
+
+</body>
+</html>

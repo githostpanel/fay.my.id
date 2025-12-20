@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Modern AI Chatbot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Prism.js -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-html.min.js"></script>
+
+<style>
+:root{
+  --primary:#10a37f;
+  --bg:#f7f7f8;
+  --user:#dcf8c6;
+  --bot:#ffffff;
+  --code-bg:#f5f5f5;
+  --code-color:#111;
+  --code-btn-bg:#e5e5e5;
+  --code-btn-color:#111;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:var(--bg);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.chat-app{
+  width:100%;
+  max-width:500px;
+  height:92vh;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 12px 40px rgba(0,0,0,.12);
+}
+
+.header{
+  background:var(--primary);
+  color:#fff;
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:bold;
+}
+
+.header button{
+  background:none;
+  border:none;
+  color:white;
+  cursor:pointer;
+  margin-left:8px;
+}
+
+.chat{
+  flex:1;
+  padding:14px;
+  overflow-y:auto;
+}
+
+.msg{
+  max-width:95%;
+  padding:12px 14px;
+  margin-bottom:12px;
+  border-radius:12px;
+  white-space:pre-wrap;
+  line-height:1.5;
+  font-size:14px;
+}
+
+.user{
+  background:var(--user);
+  margin-left:auto;
+  border-bottom-right-radius:4px;
+}
+
+.bot{
+  background:var(--bot);
+  border:1px solid #ddd;
+  margin-right:auto;
+  border-bottom-left-radius:4px;
+}
+
+.typing{
+  font-size:13px;
+  color:gray;
+  margin-bottom:8px;
+}
+
+.input-area{
+  border-top:1px solid #ddd;
+  padding:10px;
+  display:flex;
+  gap:8px;
+}
+
+textarea{
+  flex:1;
+  resize:none;
+  height:52px;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  outline:none;
+  font-size:14px;
+}
+
+/* Code block */
+.code-container{
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:10px;
+  font-size:13px;
+  border:1px solid #ddd;
+}
+
+.code-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#f0f0f0;
+  padding:4px 8px;
+  font-weight:bold;
+}
+
+.code-header span{
+  font-size:12px;
+}
+
+.code-header button{
+  background:#e5e5e5;
+  color:#111;
+  border:none;
+  font-size:12px;
+  padding:2px 6px;
+  margin-left:4px;
+  border-radius:4px;
+  cursor:pointer;
+}
+
+.code-header button:hover{
+  background:#10a37f;
+  color:#fff;
+}
+
+pre{
+  margin:0;
+  padding:12px;
+  overflow-x:auto;
+}
+
+.dark-mode pre{
+  background:#1e1e1e;
+  color:#f5f5f5;
+}
+
+/* Modal preview */
+.modal{
+  display:none;
+  position:fixed;
+  z-index:1000;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:#fff;
+  padding:10px;
+  border-radius:10px;
+  width:80%;
+  height:80%;
+  position:relative;
+}
+
+.modal-content iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+.modal-close{
+  position:absolute;
+  top:6px;
+  right:10px;
+  background:red;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  padding:2px 6px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="chat-app">
+  <div class="header">
+    🤖 AI Chatbot
+    <div>
+      <button onclick="clearChat()">Clear</button>
+    </div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="input-area">
+    <textarea id="input" placeholder="Ketik pesan... (Enter = kirim, Shift+Enter = baris baru)"></textarea>
+  </div>
+</div>
+
+<!-- Modal Preview -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">X</button>
+    <iframe id="preview-iframe"></iframe>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-html.min.js"></script>
+
+<script>
+const API_KEY = ""; // ⚠️ Jangan untuk produksi
+
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+
+let messages = [
+  { role:"system", content:"Kamu adalah chatbot AI yang ramah dan membantu." }
+];
+
+// Enter kirim / Shift+Enter newline
+input.addEventListener("keydown", e=>{
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// Parse code block
+function parseMessage(text){
+  const parts=[];
+  const regex=/```([\s\S]*?)```/g;
+  let last=0, m;
+  while((m=regex.exec(text))){
+    if(m.index>last){
+      parts.push({type:"text",content:text.slice(last,m.index)});
+    }
+    parts.push({type:"code",content:m[1].trim()});
+    last=regex.lastIndex;
+  }
+  if(last<text.length) parts.push({type:"text",content:text.slice(last)});
+  return parts;
+}
+
+// Add message to chat
+function addMessage(role){
+  const div=document.createElement("div");
+  div.className=`msg ${role}`;
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+  return div;
+}
+
+// Typing indicator
+function showTyping(){
+  const t=document.createElement("div");
+  t.className="typing";
+  t.id="typing";
+  t.textContent="Bot sedang mengetik...";
+  chat.appendChild(t);
+}
+
+function removeTyping(){
+  const t=document.getElementById("typing");
+  if(t) t.remove();
+}
+
+// Typing + code block render
+async function typeEffect(el,text){
+  const parts=parseMessage(text);
+  for(const p of parts){
+    if(p.type==="text"){
+      const span=document.createElement("span");
+      el.appendChild(span);
+      for(const c of p.content){
+        span.textContent+=c;
+        chat.scrollTop=chat.scrollHeight;
+        await new Promise(r=>setTimeout(r,15));
+      }
+    }else{
+      const container=document.createElement("div");
+      container.className="code-container";
+
+      // Header bar
+      const header=document.createElement("div");
+      header.className="code-header";
+      const label=document.createElement("span");
+      label.textContent="HTML";
+      header.appendChild(label);
+
+      // Toggle darkmode
+      const darkBtn=document.createElement("button");
+      darkBtn.textContent="Darkmode";
+      darkBtn.onclick=()=>container.classList.toggle("dark-mode");
+      header.appendChild(darkBtn);
+
+      // Copy button
+      const copyBtn=document.createElement("button");
+      copyBtn.textContent="Copy";
+      copyBtn.onclick=()=>navigator.clipboard.writeText(p.content);
+      header.appendChild(copyBtn);
+
+      // Preview button
+      const previewBtn=document.createElement("button");
+      previewBtn.textContent="Preview";
+      previewBtn.onclick=()=>openModal(p.content);
+      header.appendChild(previewBtn);
+
+      container.appendChild(header);
+
+      // Code element
+      const pre=document.createElement("pre");
+      const code=document.createElement("code");
+      code.className="language-html";
+      code.textContent=p.content;
+      pre.appendChild(code);
+      container.appendChild(pre);
+      el.appendChild(container);
+
+      Prism.highlightElement(code);
+      chat.scrollTop=chat.scrollHeight;
+    }
+  }
+}
+
+// Modal preview
+const modal=document.getElementById("modal");
+const iframe=document.getElementById("preview-iframe");
+function openModal(code){
+  iframe.srcdoc=code;
+  modal.style.display="flex";
+}
+function closeModal(){ modal.style.display="none"; }
+
+// Send message
+async function sendMessage(){
+  const text=input.value.trim();
+  if(!text) return;
+
+  addMessage("user").textContent=text;
+  messages.push({role:"user",content:text});
+  input.value="";
+
+  showTyping();
+
+  const res=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+API_KEY
+    },
+    body:JSON.stringify({
+      model:"gpt-4o-mini",
+      messages
+    })
+  });
+
+  const data=await res.json();
+  const reply=data.choices[0].message.content;
+
+  removeTyping();
+  const botEl=addMessage("bot");
+  await typeEffect(botEl,reply);
+
+  messages.push({role:"assistant",content:reply});
+}
+
+// Clear chat
+function clearChat(){
+  chat.innerHTML="";
+  messages=messages.slice(0,1);
+}
+</script>
+</body>
+</html>

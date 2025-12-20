@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Modern Chatbot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* ===== STYLE TETAP ===== */
+:root {
+  --primary: #10a37f;
+  --bg: #f7f7f8;
+  --user: #dcf8c6;
+  --bot: #ffffff;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.chat-app {
+  width: 100%;
+  max-width: 450px;
+  height: 90vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.header {
+  background: var(--primary);
+  color: white;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.msg {
+  max-width: 80%;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.user {
+  background: var(--user);
+  margin-left: auto;
+}
+
+.bot {
+  background: var(--bot);
+  border: 1px solid #ddd;
+  margin-right: auto;
+}
+
+.typing {
+  font-size: 13px;
+  color: gray;
+  margin-bottom: 8px;
+}
+
+.input-area {
+  border-top: 1px solid #ddd;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+textarea {
+  flex: 1;
+  resize: none;
+  height: 48px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+button.send {
+  background: var(--primary);
+  border: none;
+  color: white;
+  padding: 0 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="chat-app">
+  <div class="header">
+    🤖 Chatbot AI
+    <button onclick="clearChat()">Clear</button>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="input-area">
+    <textarea id="input" placeholder="Ketik pesan... (Enter = kirim, Shift+Enter = baris baru)"></textarea>
+    <button class="send" onclick="sendMessage()">Kirim</button>
+  </div>
+</div>
+
+<script>
+const API_KEY = ""; // ⚠️ Jangan untuk produksi
+
+const chatEl = document.getElementById("chat");
+const inputEl = document.getElementById("input");
+
+let messages = [
+  { role: "system", content: "Kamu adalah chatbot yang ramah dan membantu." }
+];
+
+// ✅ ENTER kirim | SHIFT+ENTER newline
+inputEl.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// Tambah pesan & return element
+function addMessage(text, role) {
+  const div = document.createElement("div");
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const div = document.createElement("div");
+  div.className = "typing";
+  div.id = "typing";
+  div.textContent = "Bot sedang mengetik...";
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById("typing");
+  if (t) t.remove();
+}
+
+// ✨ Efek typing huruf per huruf
+async function typeEffect(element, text, speed = 20) {
+  element.textContent = "";
+  for (let i = 0; i < text.length; i++) {
+    element.textContent += text[i];
+    chatEl.scrollTop = chatEl.scrollHeight;
+    await new Promise(r => setTimeout(r, speed));
+  }
+}
+
+async function sendMessage() {
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  addMessage(text, "user");
+  messages.push({ role: "user", content: text });
+  inputEl.value = "";
+
+  showTyping();
+
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + API_KEY
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages
+    })
+  });
+
+  const data = await res.json();
+  const reply = data.choices[0].message.content;
+
+  removeTyping();
+  const botDiv = addMessage("", "bot");
+  await typeEffect(botDiv, reply);
+
+  messages.push({ role: "assistant", content: reply });
+}
+
+function clearChat() {
+  chatEl.innerHTML = "";
+  messages = messages.slice(0,1);
+}
+</script>
+
+</body>
+</html>
