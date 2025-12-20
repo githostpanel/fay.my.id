@@ -100,23 +100,27 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
 
-  // Menambahkan pesan dari pengguna ke chat
   addMessage("user").textContent = text;
   input.value = "";
   showTyping();
 
-  const proxyUrl = "https://cors-anywhere.herokuapp.com/";  // Proxy URL
-  const apiUrl = "https://api.fay.my.id/ai/chatgpt/api.php";  // API asli
+  const apiUrl = "https://api.fay.my.id/ai/chatgpt/api.php";
 
   try {
-    // Mengirimkan permintaan ke API menggunakan proxy CORS
-    const res = await fetch(proxyUrl + apiUrl, {
+    const res = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: text })
     });
 
-    // Mendapatkan respons dari API dan memprosesnya
+    // Cek jika respons gagal
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("API Error:", errorData);
+      removeTyping();
+      return;
+    }
+
     const data = await res.json();
     removeTyping();
     const reply = data.choices[0].message.content;
@@ -128,6 +132,7 @@ async function sendMessage() {
     removeTyping();
   }
 }
+
 
 
 function clearChat(){
