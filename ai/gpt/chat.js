@@ -96,24 +96,43 @@ function openModal(code){
 }
 function closeModal(){ modal.style.display="none"; }
 
-async function sendMessage(){
-  const text=input.value.trim();
-  if(!text) return;
-  addMessage("user").textContent=text;
-  input.value="";
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMessage("user").textContent = text;
+  input.value = "";
   showTyping();
 
-  const res = await fetch("https://api.fay.my.id/ai/chatgpt/api.php",{
-    method:"POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ message: text })
-  });
-  const data = await res.json();
-  removeTyping();
-  const reply = data.choices[0].message.content;
-  const botEl = addMessage("bot");
-  await typeEffect(botEl,reply);
+  const apiUrl = "https://api.fay.my.id/ai/chatgpt/api.php";
+
+  try {
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+
+    // Cek jika respons gagal
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("API Error:", errorData);
+      removeTyping();
+      return;
+    }
+
+    const data = await res.json();
+    removeTyping();
+    const reply = data.choices[0].message.content;
+
+    const botEl = addMessage("bot");
+    await typeEffect(botEl, reply);
+  } catch (error) {
+    console.error("Error sending message:", error);
+    removeTyping();
+  }
 }
+
 
 function clearChat(){
   chat.innerHTML="";
